@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shown for a split second while the app starts; follows the phone's light/dark setting. -->
+    <color name="window_bg">#FFF7F6FC</color>
+    <color name="ic_launcher_background">#FF13172A</color>
+</resources>
