@@ -35,7 +35,8 @@ A white/colored noise app for Android in the spirit of Chroma Doze: you **draw t
 - Type a time on the keypad (fills from the right, like a microwave: 1-3-0 = 1:30) or tap a quick start: 1, 3, 5, 10, 15, 30 min, or *Again* for your last length.
 - Progress ring with Pause / Resume, **+1 min** and Cancel.
 - When time's up it rings like an alarm — screen off, silent mode, even after a reboot — and, like Google Clock, shows **Time's up** with the overtime counting up (−0:05, −0:06…), with **+1 min** and Stop; flip the phone face down to stop it. White noise keeps playing.
-- **On screen outside the app, like Google Clock:** a live countdown on the lock screen and in the notification shade (Pause, +1:00, Reset). On Android 16+ it's a **Live Update** — a ticking chip in the status bar and a card pinned at the top of the lock screen.
+- **On screen outside the app, like Google Clock:** on Android 16+ it's a **Live Update** — a ticking chip in the status bar (on Samsung, tap it for the pop-down card with the big time, a round pause button and a progress line) and a card pinned at the top of the lock screen, with Pause, +1:00 and Reset. Older Android versions show the same live countdown and progress bar as a normal notification.
+- **Samsung (One UI 8):** if the chip doesn't appear, turn on *Settings → Developer options → Live notifications for all apps* (Samsung currently limits it to its own apps unless that's on).
 
 ### Stopwatch
 

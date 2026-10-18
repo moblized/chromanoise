@@ -65,8 +65,16 @@ object AlarmNotifications {
             .setShowWhen(false)
             .setContentIntent(screen)
             .setFullScreenIntent(screen, true)
-            .addAction(action(snoozeLabel, AlarmRingService.actionIntent(context, AlarmRingService.ACTION_SNOOZE)))
-            .addAction(action("Stop", AlarmRingService.actionIntent(context, AlarmRingService.ACTION_DISMISS)))
+
+        val snooze = action(
+            context,
+            if (overtimeSince != null) R.drawable.ic_notif_add else R.drawable.ic_notif_snooze,
+            snoozeLabel,
+            AlarmRingService.actionIntent(context, AlarmRingService.ACTION_SNOOZE),
+        )
+        val stop = action(context, R.drawable.ic_notif_stop, "Stop", AlarmRingService.actionIntent(context, AlarmRingService.ACTION_DISMISS))
+        // A finished timer leads with Stop (Samsung shows the first button in its pop-down card), like Google Clock.
+        if (overtimeSince != null) b.addAction(stop).addAction(snooze) else b.addAction(snooze).addAction(stop)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             b.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
         }
@@ -95,7 +103,7 @@ object AlarmNotifications {
                 .setOnlyAlertOnce(true)
                 .setShowWhen(false)
                 .setContentIntent(openAlarms(context))
-                .addAction(action("Dismiss", AlarmReceiver.cancelSnoozeIntent(context, a.id)))
+                .addAction(action(context, R.drawable.ic_notif_stop, "Dismiss", AlarmReceiver.cancelSnoozeIntent(context, a.id)))
                 .build()
             nm.notify(SNOOZED_BASE + a.id, n)
         }
@@ -161,8 +169,8 @@ object AlarmNotifications {
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 
-    private fun action(title: String, intent: PendingIntent): Notification.Action =
-        Notification.Action.Builder(null as Icon?, title, intent).build()
+    private fun action(context: Context, icon: Int, title: String, intent: PendingIntent): Notification.Action =
+        Notification.Action.Builder(Icon.createWithResource(context, icon), title, intent).build()
 
     private fun manager(context: Context) = context.getSystemService(NotificationManager::class.java)
 }

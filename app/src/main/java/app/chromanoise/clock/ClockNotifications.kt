@@ -15,45 +15,78 @@ import app.chromanoise.R
 import app.chromanoise.alarm.AlarmNotifications
 
 /**
- * The running timer / stopwatch outside the app, like Google Clock: an ongoing notification
- * that counts live by itself (the notification chronometer), shown on the lock screen, and —
- * on Android 16+ — promoted to a **Live Update**: a ticking chip in the status bar and a
- * card pinned at the top of the lock screen and notification shade.
+ * The running timer / stopwatch outside the app, like Google Clock:
+ *  - a ticking chip in the status bar, and on Samsung (One UI 8) the pop-down card you get by
+ *    tapping it — big time, round pause button, progress line;
+ *  - a live card pinned to the top of the lock screen and notification shade.
+ * These are Android 16 **Live Updates**: an ongoing notification with a self-ticking
+ * chronometer, icon buttons and (for the timer) a progress bar. Older Android versions show
+ * the same thing as a normal ongoing notification.
+ *
+ * A running timer's progress bar is kept moving by [ClockTickService]; everything else is
+ * posted directly.
  */
 object ClockNotifications {
     private const val CHANNEL = "clock"
+
+    /** Paused timer (posted directly). */
     private const val TIMER_ID = 20
     private const val STOPWATCH_ID = 21
 
+    /** Running timer (owned by [ClockTickService] while it runs). */
+    const val TIMER_RUNNING_ID = 22
+
+    private const val PROGRESS_STEPS = 1000
+
     fun showTimer(context: Context, t: TimerState) {
         val nm = manager(context)
-        if (t.idle) {
-            nm.cancel(TIMER_ID)
-            return
+        when {
+            t.running -> {
+                nm.cancel(TIMER_ID)
+                // The service keeps the progress line moving; if Android won't start it, post once.
+                if (!ClockTickService.start(context)) nm.notify(TIMER_RUNNING_ID, buildTimer(context, t))
+            }
+            t.paused -> {
+                ClockTickService.stop(context)
+                nm.cancel(TIMER_RUNNING_ID)
+                nm.notify(TIMER_ID, buildTimer(context, t))
+            }
+            else -> {
+                ClockTickService.stop(context)
+                nm.cancel(TIMER_RUNNING_ID)
+                nm.cancel(TIMER_ID)
+            }
         }
+    }
+
+    /** The timer card: running (ticking down, progress filling) or paused. */
+    fun buildTimer(context: Context, t: TimerState): Notification {
         ensureChannel(context)
-        val remaining = t.remaining(SystemClock.elapsedRealtime())
+        val now = SystemClock.elapsedRealtime()
+        val remaining = t.remaining(now)
+        val done = ((1f - t.fractionLeft(now)) * PROGRESS_STEPS).toInt().coerceIn(0, PROGRESS_STEPS)
         val b = base(context, R.drawable.ic_stat_timer, MainActivity.TAB_TIMER)
+            .setContentText("${ClockText.shortDuration(t.durationMs)} timer")
         if (t.running) {
             b.setContentTitle("Timer")
-                .setContentText("${ClockText.shortDuration(t.durationMs)} timer")
                 .setUsesChronometer(true)
                 .setChronometerCountDown(true)
                 .setWhen(System.currentTimeMillis() + remaining)
                 .setShowWhen(true)
-                .addAction(action(context, "Pause", ClockReceiver.TIMER_PAUSE))
-                .addAction(action(context, "+1:00", ClockReceiver.TIMER_ADD))
-                .addAction(action(context, "Reset", ClockReceiver.TIMER_CANCEL))
+                // First button = the round button in Samsung's pop-down card.
+                .addAction(action(context, R.drawable.ic_notif_pause, "Pause", ClockReceiver.TIMER_PAUSE))
+                .addAction(action(context, R.drawable.ic_notif_add, "+1:00", ClockReceiver.TIMER_ADD))
+                .addAction(action(context, R.drawable.ic_notif_stop, "Reset", ClockReceiver.TIMER_CANCEL))
             LiveUpdates.request(b, chipText = null) // the chronometer itself ticks in the chip
         } else {
-            b.setContentTitle("Timer paused")
-                .setContentText("${ClockText.timer(remaining)} left")
+            b.setContentTitle("Timer paused · ${ClockText.timer(remaining)} left")
                 .setShowWhen(false)
-                .addAction(action(context, "Resume", ClockReceiver.TIMER_RESUME))
-                .addAction(action(context, "Reset", ClockReceiver.TIMER_CANCEL))
+                .addAction(action(context, R.drawable.ic_notif_play, "Resume", ClockReceiver.TIMER_RESUME))
+                .addAction(action(context, R.drawable.ic_notif_stop, "Reset", ClockReceiver.TIMER_CANCEL))
             LiveUpdates.request(b, chipText = ClockText.timer(remaining))
         }
-        nm.notify(TIMER_ID, b.build())
+        progress(b, done)
+        return b.build()
     }
 
     fun showStopwatch(context: Context, s: StopwatchState) {
@@ -73,18 +106,31 @@ object ClockNotifications {
                 .setUsesChronometer(true)
                 .setWhen(System.currentTimeMillis() - elapsed)
                 .setShowWhen(true)
-                .addAction(action(context, "Pause", ClockReceiver.STOPWATCH_PAUSE))
-                .addAction(action(context, "Lap", ClockReceiver.STOPWATCH_LAP))
+                .addAction(action(context, R.drawable.ic_notif_pause, "Pause", ClockReceiver.STOPWATCH_PAUSE))
+                .addAction(action(context, R.drawable.ic_notif_lap, "Lap", ClockReceiver.STOPWATCH_LAP))
             LiveUpdates.request(b, chipText = null)
         } else {
             b.setContentTitle("Stopwatch paused")
                 .setContentText(listOfNotNull(ClockText.stopwatch(elapsed), lapText).joinToString(" · "))
                 .setShowWhen(false)
-                .addAction(action(context, "Resume", ClockReceiver.STOPWATCH_RESUME))
-                .addAction(action(context, "Reset", ClockReceiver.STOPWATCH_RESET))
+                .addAction(action(context, R.drawable.ic_notif_play, "Resume", ClockReceiver.STOPWATCH_RESUME))
+                .addAction(action(context, R.drawable.ic_notif_stop, "Reset", ClockReceiver.STOPWATCH_RESET))
             LiveUpdates.request(b, chipText = ClockText.clock(elapsed))
         }
         nm.notify(STOPWATCH_ID, b.build())
+    }
+
+    /** Android 16: Live Update progress style (the line in the card). Older: a plain progress bar. */
+    private fun progress(b: Notification.Builder, done: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            b.setStyle(
+                Notification.ProgressStyle()
+                    .setProgressSegments(listOf(Notification.ProgressStyle.Segment(PROGRESS_STEPS)))
+                    .setProgress(done),
+            )
+        } else {
+            b.setProgress(PROGRESS_STEPS, done, false)
+        }
     }
 
     private fun base(context: Context, icon: Int, tab: Int): Notification.Builder =
@@ -96,10 +142,10 @@ object ClockNotifications {
             .setOnlyAlertOnce(true)
             .setContentIntent(AlarmNotifications.openTab(context, tab))
 
-    private fun action(context: Context, title: String, clockAction: String): Notification.Action =
-        Notification.Action.Builder(null as Icon?, title, ClockReceiver.intent(context, clockAction)).build()
+    private fun action(context: Context, icon: Int, title: String, clockAction: String): Notification.Action =
+        Notification.Action.Builder(Icon.createWithResource(context, icon), title, ClockReceiver.intent(context, clockAction)).build()
 
-    private fun ensureChannel(context: Context) {
+    fun ensureChannel(context: Context) {
         // LOW: silent, but still allowed to become a Live Update (MIN isn't).
         val channel = NotificationChannel(CHANNEL, "Timer and stopwatch", NotificationManager.IMPORTANCE_LOW).apply {
             description = "Shows a running timer or stopwatch on the lock screen and status bar"
