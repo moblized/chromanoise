@@ -10,12 +10,27 @@ android {
     namespace = "app.chromanoise"
     compileSdk = 36
 
+    // GitHub builds pass their run number (-PversionCode=N) so each release is a newer version.
+    val buildNumber = (project.findProperty("versionCode") as String?)?.toIntOrNull()
+
     defaultConfig {
         applicationId = "app.chromanoise"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = buildNumber ?: 1
+        versionName = "1.0.${buildNumber ?: 0}"
+    }
+
+    signingConfigs {
+        // One shared key for every build (GitHub and Android Studio alike), so a newer APK
+        // always installs over an older one without losing your alarms and settings.
+        // It's in the repo, so it's only for sideloading — use a private key for the Play Store.
+        getByName("debug") {
+            storeFile = rootProject.file("keystore/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {
@@ -23,8 +38,6 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Signed with the debug key so the release APK installs straight away.
-            // Make your own keystore before publishing anywhere.
             signingConfig = signingConfigs.getByName("debug")
         }
     }

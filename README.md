@@ -2,7 +2,7 @@
 
 A white/colored noise app for Android in the spirit of Chroma Doze: you **draw the sound's spectrum with your finger** and the app generates noise that matches it, live. Plus an alarm clock, timer and stopwatch built for bedtime.
 
-**Get the APK:** open the latest run under [Actions](../../actions), scroll to *Artifacts*, download `chroma-noise-apk`, unzip it and install `app-debug.apk` on your phone.
+**Get the app:** on your phone, open [the latest release](../../releases/latest), download the `.apk` and open it. New releases install over the old one and keep your alarms and settings.
 
 ## Features
 
@@ -95,6 +95,8 @@ Note: the app uses the `USE_EXACT_ALARM` permission, which is fine for personal 
 ./gradlew testDebugUnitTest      # noise spectra, alarm timing, timer/stopwatch, flip, theme contrast
 ```
 
-**No computer setup:** every push to this repo is built by GitHub Actions (`.github/workflows/build.yml`), which runs the tests and uploads the APKs as the run's *Artifacts*.
+**No computer setup:** every push to `main` is built by GitHub Actions (`.github/workflows/build.yml`): it runs the tests, builds the APK and publishes it as a new [Release](../../releases) (version 1.0.*build number*).
+
+**Signing:** all builds (GitHub and Android Studio) are signed with the shared key in `keystore/`, so updates install over each other. That key is public, which is fine for installing on your own phone; if you ever publish to the Play Store, make a private key and keep it out of the repo.
 
 Stack: Kotlin 2.2, Jetpack Compose (Material 3), AGP 8.13, Gradle 8.14, min Android 8.0, target Android 16. No third-party libraries.

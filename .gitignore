@@ -9,3 +9,5 @@ captures/
 .cxx/
 *.keystore
 *.jks
+# The shared signing key for sideloaded builds (see README) is the one exception.
+!keystore/debug.keystore
