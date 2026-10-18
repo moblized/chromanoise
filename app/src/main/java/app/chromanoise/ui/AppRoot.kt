@@ -20,15 +20,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.chromanoise.MainActivity.Companion.TAB_ALARMS
+import app.chromanoise.MainActivity.Companion.TAB_NOISE
+import app.chromanoise.MainActivity.Companion.TAB_STOPWATCH
+import app.chromanoise.MainActivity.Companion.TAB_TIMER
 import app.chromanoise.alarm.AlarmRingService
 import app.chromanoise.alarm.TimeFormat
 
-const val TAB_NOISE = 0
-const val TAB_ALARMS = 1
-
 /**
- * Two tabs (Noise, Alarms). A ringing alarm takes over the whole screen, and so does the
- * alarm editor while it's open.
+ * Four tabs: Noise, Alarms, Timer, Stopwatch. A ringing alarm (or finished timer) takes over
+ * the whole screen, and so does the alarm editor while it's open.
  */
 @Composable
 fun AppRoot(
@@ -84,24 +85,33 @@ fun AppRoot(
             containerColor = MaterialTheme.colorScheme.background,
             bottomBar = {
                 NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer) {
-                    NavigationBarItem(
-                        selected = tab == TAB_NOISE,
-                        onClick = { tab = TAB_NOISE },
-                        icon = { Icon(AppIcons.Bars, contentDescription = null) },
-                        label = { Text("Noise") },
-                    )
-                    NavigationBarItem(
-                        selected = tab == TAB_ALARMS,
-                        onClick = { tab = TAB_ALARMS },
-                        icon = { Icon(AppIcons.Alarm, contentDescription = null) },
-                        label = { Text("Alarms") },
-                    )
+                    listOf(
+                        Triple(TAB_NOISE, "Noise", AppIcons.Bars),
+                        Triple(TAB_ALARMS, "Alarms", AppIcons.Alarm),
+                        Triple(TAB_TIMER, "Timer", AppIcons.Hourglass),
+                        Triple(TAB_STOPWATCH, "Stopwatch", AppIcons.Stopwatch),
+                    ).forEach { (id, name, icon) ->
+                        NavigationBarItem(
+                            selected = tab == id,
+                            onClick = { tab = id },
+                            icon = { Icon(icon, contentDescription = null) },
+                            label = { Text(name, maxLines = 1) },
+                        )
+                    }
                 }
             },
         ) { padding ->
             when (tab) {
                 TAB_ALARMS -> AlarmsScreen(
                     vm = alarmsVm,
+                    onOpenAppearance = { showAppearance = true },
+                    modifier = Modifier.padding(padding),
+                )
+                TAB_TIMER -> TimerScreen(
+                    onOpenAppearance = { showAppearance = true },
+                    modifier = Modifier.padding(padding),
+                )
+                TAB_STOPWATCH -> StopwatchScreen(
                     onOpenAppearance = { showAppearance = true },
                     modifier = Modifier.padding(padding),
                 )

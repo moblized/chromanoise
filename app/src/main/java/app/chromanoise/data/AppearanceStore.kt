@@ -11,7 +11,11 @@ enum class ThemeMode(val label: String) {
     DARK("Dark"),
 }
 
-data class Appearance(val mode: ThemeMode = ThemeMode.SYSTEM, val pureBlack: Boolean = false) {
+data class Appearance(
+    val mode: ThemeMode = ThemeMode.SYSTEM,
+    val pureBlack: Boolean = false,
+    val palette: AccentPalette = AccentPalette.VIOLET,
+) {
     /** Whether to use dark colours, given whether the phone itself is in dark mode. */
     fun isDark(phoneIsDark: Boolean): Boolean = when (mode) {
         ThemeMode.SYSTEM -> phoneIsDark
@@ -30,6 +34,7 @@ class AppearanceStore private constructor(context: Context) {
         Appearance(
             mode = ThemeMode.entries.firstOrNull { it.name == prefs.getString(KEY_MODE, null) } ?: ThemeMode.SYSTEM,
             pureBlack = prefs.getBoolean(KEY_BLACK, false),
+            palette = AccentPalette.fromName(prefs.getString(KEY_PALETTE, null)),
         ),
     )
     val appearance: StateFlow<Appearance> = _appearance.asStateFlow()
@@ -39,12 +44,14 @@ class AppearanceStore private constructor(context: Context) {
         prefs.edit()
             .putString(KEY_MODE, appearance.mode.name)
             .putBoolean(KEY_BLACK, appearance.pureBlack)
+            .putString(KEY_PALETTE, appearance.palette.name)
             .apply()
     }
 
     companion object {
         private const val KEY_MODE = "mode"
         private const val KEY_BLACK = "pure_black"
+        private const val KEY_PALETTE = "palette"
 
         @Volatile private var instance: AppearanceStore? = null
 

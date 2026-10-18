@@ -26,6 +26,8 @@ data class Alarm(
     /** Fade the sound in over [GENTLE_FADE_MS] instead of starting at full volume. */
     val gentleWake: Boolean = true,
     val snoozeMinutes: Int = 10,
+    /** Turning the phone face down while it rings snoozes it. */
+    val flipToSnooze: Boolean = true,
     /** Wall-clock ms when a snoozed alarm rings again, or null. */
     val snoozedUntil: Long? = null,
     /** Wall-clock ms this alarm is currently scheduled for (kept up to date by AlarmScheduler). */

@@ -16,69 +16,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import app.chromanoise.data.AccentPalette
 import app.chromanoise.data.AppearanceStore
-
-/** Night: deep navy. The original look. */
-private val NightColors = darkColorScheme(
-    primary = Color(0xFFB9ADFF),
-    onPrimary = Color(0xFF1C1548),
-    primaryContainer = Color(0xFF332B6E),
-    onPrimaryContainer = Color(0xFFE4DEFF),
-    secondaryContainer = Color(0xFF262A48),
-    onSecondaryContainer = Color(0xFFDCDAF2),
-    background = Color(0xFF0A0C16),
-    onBackground = Color(0xFFE8E7F3),
-    surface = Color(0xFF0A0C16),
-    onSurface = Color(0xFFE8E7F3),
-    surfaceVariant = Color(0xFF161A2E),
-    onSurfaceVariant = Color(0xFF9E9DB6),
-    surfaceContainerLowest = Color(0xFF07080F),
-    surfaceContainerLow = Color(0xFF0F1220),
-    surfaceContainer = Color(0xFF13172A),
-    surfaceContainerHigh = Color(0xFF1A1E36),
-    surfaceContainerHighest = Color(0xFF22263F),
-    outline = Color(0xFF4B4F6E),
-    outlineVariant = Color(0xFF2C3050),
-)
-
-/** Pure black: same accents, true-black background (saves battery on OLED screens). */
-private val BlackColors = NightColors.copy(
-    background = Color.Black,
-    surface = Color.Black,
-    surfaceVariant = Color(0xFF101326),
-    surfaceContainerLowest = Color.Black,
-    surfaceContainerLow = Color(0xFF07080F),
-    surfaceContainer = Color(0xFF0D0F1A),
-    surfaceContainerHigh = Color(0xFF14172A),
-    surfaceContainerHighest = Color(0xFF1C2036),
-    outlineVariant = Color(0xFF242842),
-)
-
-/** Day: soft lavender-white with the same violet accent. */
-private val DayColors = lightColorScheme(
-    primary = Color(0xFF5B4BC4),
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFE4DEFF),
-    onPrimaryContainer = Color(0xFF1C1548),
-    secondaryContainer = Color(0xFFE3E1F4),
-    onSecondaryContainer = Color(0xFF1E1C33),
-    background = Color(0xFFF7F6FC),
-    onBackground = Color(0xFF1A1B26),
-    surface = Color(0xFFF7F6FC),
-    onSurface = Color(0xFF1A1B26),
-    surfaceVariant = Color(0xFFE6E5F2),
-    onSurfaceVariant = Color(0xFF5C5C72),
-    surfaceContainerLowest = Color.White,
-    surfaceContainerLow = Color(0xFFF2F1FA),
-    surfaceContainer = Color(0xFFEDECF6),
-    surfaceContainerHigh = Color(0xFFE7E6F3),
-    surfaceContainerHighest = Color(0xFFDFDEEE),
-    outline = Color(0xFF8A8AA3),
-    outlineVariant = Color(0xFFCBCADB),
-)
+import app.chromanoise.data.Palettes
+import app.chromanoise.data.SchemeColors
 
 /** True when the app is currently showing a dark theme (night or pure black). */
 val LocalDarkTheme = staticCompositionLocalOf { true }
@@ -88,10 +33,8 @@ fun ChromaNoiseTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
     val appearance by AppearanceStore.get(context).appearance.collectAsState()
     val dark = appearance.isDark(isSystemInDarkTheme())
-    val colors: ColorScheme = when {
-        !dark -> DayColors
-        appearance.pureBlack -> BlackColors
-        else -> NightColors
+    val colors = remember(appearance.palette, dark, appearance.pureBlack) {
+        colorScheme(appearance.palette, dark, appearance.pureBlack)
     }
 
     // Light status-bar icons on dark backgrounds, dark icons on light ones.
@@ -108,6 +51,40 @@ fun ChromaNoiseTheme(content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalDarkTheme provides dark) {
         MaterialTheme(colorScheme = colors, content = content)
     }
+}
+
+/** Builds the Material colour scheme from one of the generated [Palettes]. */
+private fun colorScheme(palette: AccentPalette, dark: Boolean, pureBlack: Boolean): ColorScheme {
+    val c: SchemeColors = if (dark) Palettes.dark(palette, pureBlack) else Palettes.light(palette)
+    val base = if (dark) darkColorScheme() else lightColorScheme()
+    return base.copy(
+        primary = Color(c.primary),
+        onPrimary = Color(c.onPrimary),
+        primaryContainer = Color(c.primaryContainer),
+        onPrimaryContainer = Color(c.onPrimaryContainer),
+        secondary = Color(c.primary),
+        onSecondary = Color(c.onPrimary),
+        secondaryContainer = Color(c.secondaryContainer),
+        onSecondaryContainer = Color(c.onSecondaryContainer),
+        tertiary = Color(c.primary),
+        onTertiary = Color(c.onPrimary),
+        background = Color(c.background),
+        onBackground = Color(c.onBackground),
+        surface = Color(c.background),
+        onSurface = Color(c.onBackground),
+        surfaceVariant = Color(c.surfaceVariant),
+        onSurfaceVariant = Color(c.onSurfaceVariant),
+        surfaceTint = Color(c.primary),
+        surfaceContainerLowest = Color(c.surfaceContainerLowest),
+        surfaceContainerLow = Color(c.surfaceContainerLow),
+        surfaceContainer = Color(c.surfaceContainer),
+        surfaceContainerHigh = Color(c.surfaceContainerHigh),
+        surfaceContainerHighest = Color(c.surfaceContainerHighest),
+        surfaceBright = Color(c.surfaceContainerHighest),
+        surfaceDim = Color(c.background),
+        outline = Color(c.outline),
+        outlineVariant = Color(c.outlineVariant),
+    )
 }
 
 private tailrec fun Context.findActivity(): Activity? = when (this) {

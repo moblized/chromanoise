@@ -36,7 +36,7 @@ object AlarmNotifications {
         manager(context).createNotificationChannels(listOf(ringing, status))
     }
 
-    fun ringing(context: Context, title: String, text: String, snoozeMinutes: Int): Notification {
+    fun ringing(context: Context, title: String, text: String, snoozeLabel: String): Notification {
         ensureChannels(context)
         val screen = PendingIntent.getActivity(
             context, 0,
@@ -54,7 +54,7 @@ object AlarmNotifications {
             .setShowWhen(false)
             .setContentIntent(screen)
             .setFullScreenIntent(screen, true)
-            .addAction(action("Snooze $snoozeMinutes min", AlarmRingService.actionIntent(context, AlarmRingService.ACTION_SNOOZE)))
+            .addAction(action(snoozeLabel, AlarmRingService.actionIntent(context, AlarmRingService.ACTION_SNOOZE)))
             .addAction(action("Stop", AlarmRingService.actionIntent(context, AlarmRingService.ACTION_DISMISS)))
             .apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -139,9 +139,12 @@ object AlarmNotifications {
     }
 
     /** Opens the app on the Alarms tab. */
-    fun openAlarms(context: Context): PendingIntent = PendingIntent.getActivity(
-        context, 100,
-        Intent(context, MainActivity::class.java).putExtra(MainActivity.EXTRA_OPEN_ALARMS, true),
+    fun openAlarms(context: Context): PendingIntent = openTab(context, MainActivity.TAB_ALARMS)
+
+    /** Opens the app on one of its tabs (MainActivity.TAB_…). */
+    fun openTab(context: Context, tab: Int): PendingIntent = PendingIntent.getActivity(
+        context, 100 + tab,
+        Intent(context, MainActivity::class.java).putExtra(MainActivity.EXTRA_OPEN_TAB, tab),
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 

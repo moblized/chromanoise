@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -64,12 +65,14 @@ fun RingingScreen(ringing: Ringing, onSnooze: () -> Unit, onStop: () -> Unit, mo
         label = "glow",
     )
 
-    // Night: dark sky turning plum. Day: pale dawn sky turning peach. Black theme starts from true black.
+    // A sky that starts in the theme's own colour and warms to sunrise at the bottom:
+    // night → plum in dark mode, pale tint → peach in light mode.
     val dark = LocalDarkTheme.current
-    val sky = when {
-        !dark -> listOf(Color(0xFFDCE6FF), Color(0xFFFBE3D6), Color(0xFFFFC7A3))
-        MaterialTheme.colorScheme.background == Color.Black -> listOf(Color.Black, Color(0xFF1C1430), Color(0xFF4E2A40))
-        else -> listOf(Color(0xFF0A0C16), Color(0xFF241A3A), Color(0xFF5A3048))
+    val scheme = MaterialTheme.colorScheme
+    val sky = if (dark) {
+        listOf(scheme.background, lerp(scheme.background, scheme.primaryContainer, 0.55f), Color(0xFF5A3048))
+    } else {
+        listOf(scheme.primaryContainer, Color(0xFFFBE3D6), Color(0xFFFFC7A3))
     }
     val clockColor = if (dark) Color.White else Color(0xFF1A1B26)
     val glowColor = if (dark) Color(0x55FFB37A) else Color(0x66FFFFFF)
@@ -114,10 +117,24 @@ fun RingingScreen(ringing: Ringing, onSnooze: () -> Unit, onStop: () -> Unit, mo
                     )
                 }
             }
+            if (ringing.detail.isNotBlank()) {
+                Text(ringing.detail, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
             Spacer(Modifier.weight(1.2f))
+            if (ringing.flipEnabled) {
+                Text(
+                    if (ringing.isTimer) "Turn the phone face down to stop" else "Turn the phone face down to snooze",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                )
+            }
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = onSnooze, modifier = Modifier.fillMaxWidth().height(56.dp)) {
-                    Text("Snooze · ${ringing.snoozeMinutes} min", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        if (ringing.isTimer) "+1 min" else "Snooze · ${ringing.snoozeMinutes} min",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
                 }
                 Button(onClick = onStop, modifier = Modifier.fillMaxWidth().height(76.dp)) {
                     Text("Stop", style = MaterialTheme.typography.headlineSmall)

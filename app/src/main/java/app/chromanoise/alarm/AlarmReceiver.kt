@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import app.chromanoise.clock.StopwatchControl
+import app.chromanoise.clock.TimerControl
 
 /** Our own alarm events: "time to ring" and "dismiss this snooze". Not reachable by other apps. */
 class AlarmReceiver : BroadcastReceiver() {
@@ -54,7 +56,10 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 }
 
-/** System events after which alarms must be set again: reboot, clock or time-zone change, app update. */
+/**
+ * System events after which alarms and the timer must be set again: reboot, clock or
+ * time-zone change, app update. Also brings back the timer/stopwatch notifications.
+ */
 class SystemEventsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
@@ -64,7 +69,11 @@ class SystemEventsReceiver : BroadcastReceiver() {
             Intent.ACTION_TIMEZONE_CHANGED,
             Intent.ACTION_MY_PACKAGE_REPLACED,
             "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED",
-            -> AlarmScheduler.sync(context)
+            -> {
+                AlarmScheduler.sync(context)
+                TimerControl.sync(context)
+                StopwatchControl.sync(context)
+            }
         }
     }
 }

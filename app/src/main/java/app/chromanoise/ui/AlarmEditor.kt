@@ -232,6 +232,12 @@ fun AlarmEditor(
                     )
                 }
             }
+            SettingRow(
+                title = "Flip to snooze",
+                subtitle = "Turn the phone face down while it's ringing",
+                checked = draft.flipToSnooze,
+                onCheckedChange = { draft = draft.copy(flipToSnooze = it) },
+            )
 
             if (!isNew) {
                 TextButton(onClick = { confirmDelete = true }, modifier = Modifier.align(Alignment.CenterHorizontally)) {

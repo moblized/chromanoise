@@ -68,6 +68,7 @@ class AlarmStore private constructor(context: Context) {
         .put("vibration", a.vibration.name)
         .put("gentle", a.gentleWake)
         .put("snooze", a.snoozeMinutes)
+        .put("flip", a.flipToSnooze)
         .put("snoozedUntil", a.snoozedUntil ?: 0L)
         .put("nextAt", a.nextAt ?: 0L)
 
@@ -84,6 +85,7 @@ class AlarmStore private constructor(context: Context) {
         vibration = VibrationPattern.fromName(o.optString("vibration", "")),
         gentleWake = o.optBoolean("gentle", true),
         snoozeMinutes = o.optInt("snooze", 10).coerceIn(1, 60),
+        flipToSnooze = o.optBoolean("flip", true),
         snoozedUntil = o.optLong("snoozedUntil", 0L).takeIf { it > 0 },
         nextAt = o.optLong("nextAt", 0L).takeIf { it > 0 },
     )

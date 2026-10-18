@@ -14,11 +14,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import app.chromanoise.clock.StopwatchControl
+import app.chromanoise.clock.TimerControl
 import app.chromanoise.ui.AlarmsViewModel
 import app.chromanoise.ui.AppRoot
 import app.chromanoise.ui.ChromaNoiseTheme
 import app.chromanoise.ui.MainViewModel
-import app.chromanoise.ui.TAB_ALARMS
 
 class MainActivity : ComponentActivity() {
     private val requestNotifications =
@@ -31,6 +32,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge() // ChromaNoiseTheme then matches the bar icons to the chosen theme
         if (savedInstanceState == null) handleIntent(intent)
+        // Re-arm the timer and refresh its notifications, in case Android dropped them (e.g. a force stop).
+        TimerControl.sync(this)
+        StopwatchControl.sync(this)
         setContent {
             ChromaNoiseTheme {
                 val noiseVm: MainViewModel = viewModel()
@@ -53,7 +57,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
-        if (intent?.getBooleanExtra(EXTRA_OPEN_ALARMS, false) == true) tabRequest = TAB_ALARMS
+        val tab = intent?.getIntExtra(EXTRA_OPEN_TAB, -1) ?: -1
+        if (tab in TAB_NOISE..TAB_STOPWATCH) tabRequest = tab
     }
 
     /**
@@ -75,6 +80,11 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        const val EXTRA_OPEN_ALARMS = "app.chromanoise.OPEN_ALARMS"
+        /** Int extra: which tab to open (from a notification). */
+        const val EXTRA_OPEN_TAB = "app.chromanoise.OPEN_TAB"
+        const val TAB_NOISE = 0
+        const val TAB_ALARMS = 1
+        const val TAB_TIMER = 2
+        const val TAB_STOPWATCH = 3
     }
 }
