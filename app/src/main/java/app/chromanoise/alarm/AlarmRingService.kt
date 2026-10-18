@@ -29,6 +29,8 @@ data class Ringing(
     val detail: String = "",
     /** Whether turning the phone face down will snooze / stop it (shown as a hint). */
     val flipEnabled: Boolean = true,
+    /** For a timer: when it ran out (wall clock), to count the overtime "−0:05" like Google Clock. */
+    val endedAt: Long? = null,
 )
 
 /**
@@ -48,7 +50,10 @@ class AlarmRingService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_RING -> ringAlarm(intent.getIntExtra(EXTRA_ID, -1))
-            ACTION_RING_TIMER -> ringTimer(intent.getLongExtra(EXTRA_LENGTH, 0L))
+            ACTION_RING_TIMER -> ringTimer(
+                lengthMs = intent.getLongExtra(EXTRA_LENGTH, 0L),
+                endedAt = intent.getLongExtra(EXTRA_ENDED_AT, System.currentTimeMillis()),
+            )
             ACTION_SNOOZE -> snooze()
             ACTION_DISMISS -> finish()
             else -> if (_ringing.value == null) stopSelf()
@@ -74,9 +79,9 @@ class AlarmRingService : Service() {
         startSound(alarm)
     }
 
-    private fun ringTimer(lengthMs: Long) {
+    private fun ringTimer(lengthMs: Long, endedAt: Long) {
         val detail = if (lengthMs > 0) "${ClockText.shortDuration(lengthMs)} timer" else "Timer"
-        val ringing = Ringing(TIMER_RING_ID, "Time's up", snoozeMinutes = 1, isTimer = true, detail = detail)
+        val ringing = Ringing(TIMER_RING_ID, "Time's up", snoozeMinutes = 1, isTimer = true, detail = detail, endedAt = endedAt)
         if (!enterForeground(ringing, detail)) return
         // Timers ring straight away at full volume; noise (if any) keeps playing.
         startSound(Alarm(id = TIMER_RING_ID, hour = 0, minute = 0, gentleWake = false, vibrate = true))
@@ -87,7 +92,7 @@ class AlarmRingService : Service() {
         // Publish first, so the alarm screen has something to show the moment it opens.
         _ringing.value = ringing
         val snoozeLabel = if (ringing.isTimer) "+1 min" else "Snooze ${ringing.snoozeMinutes} min"
-        val notification = AlarmNotifications.ringing(this, ringing.label, text, snoozeLabel)
+        val notification = AlarmNotifications.ringing(this, ringing.label, text, snoozeLabel, overtimeSince = ringing.endedAt)
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(AlarmNotifications.RINGING_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
@@ -179,6 +184,7 @@ class AlarmRingService : Service() {
         private const val ACTION_RING_TIMER = "app.chromanoise.alarm.RING_TIMER"
         private const val EXTRA_ID = "alarm_id"
         private const val EXTRA_LENGTH = "timer_length"
+        private const val EXTRA_ENDED_AT = "timer_ended_at"
         private const val RING_LIMIT_MS = 10 * 60_000L
         private const val TIMER_RING_ID = -1
         private const val TAG = "AlarmRingService"
@@ -197,9 +203,13 @@ class AlarmRingService : Service() {
             )
         }
 
-        fun ringTimer(context: Context, lengthMs: Long) {
+        /** [endedAt]: wall-clock time the timer ran out. */
+        fun ringTimer(context: Context, lengthMs: Long, endedAt: Long) {
             context.startForegroundService(
-                Intent(context, AlarmRingService::class.java).setAction(ACTION_RING_TIMER).putExtra(EXTRA_LENGTH, lengthMs),
+                Intent(context, AlarmRingService::class.java)
+                    .setAction(ACTION_RING_TIMER)
+                    .putExtra(EXTRA_LENGTH, lengthMs)
+                    .putExtra(EXTRA_ENDED_AT, endedAt),
             )
         }
 

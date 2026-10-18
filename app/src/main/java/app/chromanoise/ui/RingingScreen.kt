@@ -42,6 +42,8 @@ import app.chromanoise.alarm.TimeFormat
 import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.ZoneId
+import androidx.compose.ui.text.TextStyle
+import app.chromanoise.clock.ClockText
 
 /** Full-screen "alarm is ringing" view: the time, a big Stop, and Snooze. */
 @Composable
@@ -105,7 +107,17 @@ fun RingingScreen(ringing: Ringing, onSnooze: () -> Unit, onStop: () -> Unit, mo
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Row(verticalAlignment = Alignment.Bottom) {
+            val endedAt = ringing.endedAt
+            if (ringing.isTimer && endedAt != null) {
+                // Like Google Clock: how long ago it ran out, counting up — "−0:05".
+                Text(
+                    "−" + ClockText.clock(now - endedAt),
+                    fontSize = 88.sp,
+                    fontWeight = FontWeight.Light,
+                    color = clockColor,
+                    style = TextStyle(fontFeatureSettings = "tnum"),
+                )
+            } else Row(verticalAlignment = Alignment.Bottom) {
                 Text(time, fontSize = 88.sp, fontWeight = FontWeight.Light, color = clockColor)
                 if (suffix != null) {
                     Spacer(Modifier.width(8.dp))

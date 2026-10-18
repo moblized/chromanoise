@@ -39,6 +39,7 @@ fun AppRoot(
     onTabRequestHandled: () -> Unit,
     onPlayPressed: () -> Unit,
     onAlarmSaved: () -> Unit,
+    onClockStarted: () -> Unit,
 ) {
     val context = LocalContext.current
     var tab by rememberSaveable { mutableIntStateOf(TAB_NOISE) }
@@ -109,10 +110,12 @@ fun AppRoot(
                 )
                 TAB_TIMER -> TimerScreen(
                     onOpenAppearance = { showAppearance = true },
+                    onStarted = onClockStarted,
                     modifier = Modifier.padding(padding),
                 )
                 TAB_STOPWATCH -> StopwatchScreen(
                     onOpenAppearance = { showAppearance = true },
+                    onStarted = onClockStarted,
                     modifier = Modifier.padding(padding),
                 )
                 else -> NoiseScreen(

@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,9 +52,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.chromanoise.clock.ClockStore
 import app.chromanoise.clock.ClockText
+import app.chromanoise.clock.LiveUpdates
 import app.chromanoise.clock.TimerControl
 import app.chromanoise.clock.TimerInput
 import app.chromanoise.clock.TimerState
@@ -63,8 +67,12 @@ private val QUICK_MINUTES = listOf(1, 3, 5, 10, 15, 30)
 /** Digits that don't shift about as they change. */
 private val Tabular = TextStyle(fontFeatureSettings = "tnum")
 
+/**
+ * @param onStarted called when a timer starts — the app asks for notification permission then,
+ *   since the running timer shows on the lock screen and status bar through a notification.
+ */
 @Composable
-fun TimerScreen(onOpenAppearance: () -> Unit, modifier: Modifier = Modifier) {
+fun TimerScreen(onOpenAppearance: () -> Unit, onStarted: () -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val store = remember { ClockStore.get(context) }
     val timer by store.timer.collectAsStateWithLifecycle()
@@ -75,8 +83,15 @@ fun TimerScreen(onOpenAppearance: () -> Unit, modifier: Modifier = Modifier) {
             .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         ScreenHeader("Timer", onOpenAppearance, subtitle = if (timer.idle) "Rings even with the screen off" else null)
+        OutsideAppHint()
         if (timer.idle) {
-            TimerSetup(lastMs = store.lastTimerMs, onStart = { TimerControl.start(context, it) })
+            TimerSetup(
+                lastMs = store.lastTimerMs,
+                onStart = {
+                    TimerControl.start(context, it)
+                    onStarted()
+                },
+            )
         } else {
             TimerRunning(
                 t = timer,
@@ -261,6 +276,37 @@ private fun TimerRunning(
                 )
             }
             OutlinedButton(onClick = onAdd) { Text("+1 min") }
+        }
+    }
+}
+
+/**
+ * Shown only when something would stop the running timer/stopwatch appearing outside the app
+ * (lock screen, status-bar chip): notifications off, or Android 16 Live Updates off.
+ */
+@Composable
+fun OutsideAppHint() {
+    val context = LocalContext.current
+    var status by remember { mutableStateOf(LiveUpdates.status(context)) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { status = LiveUpdates.status(context) }
+    val text = when (status) {
+        LiveUpdates.Status.NOTIFICATIONS_OFF -> "Notifications are off, so it can't show on your lock screen or status bar."
+        LiveUpdates.Status.LIVE_UPDATES_OFF -> "Live Updates are off, so the time won't show in your status bar."
+        else -> return
+    }
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+    ) {
+        Row(Modifier.padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(text, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+            TextButton(onClick = {
+                runCatching { context.startActivity(LiveUpdates.settingsIntent(context, status)) }
+            }) { Text("Turn on") }
         }
     }
 }

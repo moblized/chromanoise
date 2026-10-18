@@ -45,8 +45,9 @@ import kotlin.math.sin
 
 private val TabularDigits = TextStyle(fontFeatureSettings = "tnum")
 
+/** @param onStarted called when the stopwatch starts (to ask for notification permission). */
 @Composable
-fun StopwatchScreen(onOpenAppearance: () -> Unit, modifier: Modifier = Modifier) {
+fun StopwatchScreen(onOpenAppearance: () -> Unit, onStarted: () -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val store = remember { ClockStore.get(context) }
     val sw by store.stopwatch.collectAsStateWithLifecycle()
@@ -62,6 +63,7 @@ fun StopwatchScreen(onOpenAppearance: () -> Unit, modifier: Modifier = Modifier)
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         ScreenHeader("Stopwatch", onOpenAppearance)
+        OutsideAppHint()
 
         Box(
             Modifier
@@ -93,7 +95,14 @@ fun StopwatchScreen(onOpenAppearance: () -> Unit, modifier: Modifier = Modifier)
                 modifier = Modifier.width(104.dp),
             ) { Text("Reset") }
             FilledIconButton(
-                onClick = { if (sw.running) StopwatchControl.pause(context) else StopwatchControl.start(context) },
+                onClick = {
+                    if (sw.running) {
+                        StopwatchControl.pause(context)
+                    } else {
+                        StopwatchControl.start(context)
+                        onStarted()
+                    }
+                },
                 modifier = Modifier.size(72.dp),
             ) {
                 Icon(

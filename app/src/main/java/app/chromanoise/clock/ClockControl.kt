@@ -39,9 +39,11 @@ object TimerControl {
         }
         store.setTimer(TimerState())
         sync(context)
+        // When it actually ran out, on the wall clock (we may be a moment late).
+        val endedAt = System.currentTimeMillis() - (now - (t.endsAt ?: now)).coerceAtLeast(0)
         AlarmRingService.holdStartupWakeLock(context)
         try {
-            AlarmRingService.ringTimer(context, t.durationMs)
+            AlarmRingService.ringTimer(context, t.durationMs, endedAt)
         } catch (e: Exception) {
             Log.e(TAG, "Couldn't start the timer alarm", e)
             AlarmNotifications.postFallback(context, "Time's up")

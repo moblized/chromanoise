@@ -73,6 +73,11 @@ class ClockTest {
         assertEquals("00:00.00", ClockText.stopwatch(0))
         assertEquals("02:03.45", ClockText.stopwatch(123_450))
         assertEquals("1:02:03.45", ClockText.stopwatch(3_723_450))
+        // Overtime / paused chip: whole seconds rounded down.
+        assertEquals("0:05", ClockText.clock(5_999))
+        assertEquals("12:34", ClockText.clock(754_000))
+        assertEquals("1:02:03", ClockText.clock(3_723_999))
+        assertEquals("0:00", ClockText.clock(-50))
         assertEquals("5 min", ClockText.shortDuration(300_000))
         assertEquals("1 h 30 min", ClockText.shortDuration(5_400_000))
         assertEquals("45 s", ClockText.shortDuration(45_000))

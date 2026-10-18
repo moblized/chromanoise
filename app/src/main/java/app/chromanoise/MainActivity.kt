@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
                     onTabRequestHandled = { tabRequest = null },
                     onPlayPressed = { askForNotifications(onlyOnce = true) },
                     onAlarmSaved = { askForNotifications(onlyOnce = false) },
+                    onClockStarted = { askForNotifications(onlyOnce = false) },
                 )
             }
         }

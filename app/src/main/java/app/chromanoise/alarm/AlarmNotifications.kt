@@ -12,6 +12,7 @@ import android.os.Build
 import android.provider.Settings
 import app.chromanoise.MainActivity
 import app.chromanoise.R
+import app.chromanoise.clock.LiveUpdates
 
 /** Notifications for ringing, snoozed and missed alarms. */
 object AlarmNotifications {
@@ -36,7 +37,17 @@ object AlarmNotifications {
         manager(context).createNotificationChannels(listOf(ringing, status))
     }
 
-    fun ringing(context: Context, title: String, text: String, snoozeLabel: String): Notification {
+    /**
+     * @param overtimeSince for a finished timer: when it ran out (wall clock). The notification
+     *   then counts up from it, like Google Clock's "−0:05", and is promoted to a Live Update.
+     */
+    fun ringing(
+        context: Context,
+        title: String,
+        text: String,
+        snoozeLabel: String,
+        overtimeSince: Long? = null,
+    ): Notification {
         ensureChannels(context)
         val screen = PendingIntent.getActivity(
             context, 0,
@@ -44,8 +55,8 @@ object AlarmNotifications {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_USER_ACTION),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        return Notification.Builder(context, CH_RINGING)
-            .setSmallIcon(R.drawable.ic_stat_alarm)
+        val b = Notification.Builder(context, CH_RINGING)
+            .setSmallIcon(if (overtimeSince != null) R.drawable.ic_stat_timer else R.drawable.ic_stat_alarm)
             .setContentTitle(title)
             .setContentText(text)
             .setCategory(Notification.CATEGORY_ALARM)
@@ -56,12 +67,14 @@ object AlarmNotifications {
             .setFullScreenIntent(screen, true)
             .addAction(action(snoozeLabel, AlarmRingService.actionIntent(context, AlarmRingService.ACTION_SNOOZE)))
             .addAction(action("Stop", AlarmRingService.actionIntent(context, AlarmRingService.ACTION_DISMISS)))
-            .apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
-                }
-            }
-            .build()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            b.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
+        }
+        if (overtimeSince != null) {
+            b.setUsesChronometer(true).setWhen(overtimeSince).setShowWhen(true)
+            LiveUpdates.request(b, chipText = null)
+        }
+        return b.build()
     }
 
     /** Shows a "Snoozed until…" notification for each snoozed alarm and clears the rest. */
