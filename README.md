@@ -44,6 +44,12 @@ A white/colored noise app for Android in the spirit of Chroma Doze: you **draw t
 - Keeps counting when you leave the app or restart the phone, shown live on the lock screen and notification shade (Pause / Lap, or Resume / Reset) — and as a status-bar chip on Android 16+ (Live Updates).
 - If notifications or Live Updates are switched off, the Timer and Stopwatch tabs say so with a button to turn them on.
 
+### Date icon
+
+- A home-screen icon that shows **today's month, day and year** (e.g. OCT / 19 / 2026) and flips to the new date at midnight by itself. Tap it to open the app. It takes the colour of your chosen theme.
+- Add it from **Appearance → Date icon → Add** (or long-press the home screen → Widgets → Chroma Noise).
+- It's a one-cell widget made to look like an app icon: Android only lets the phone maker's own Calendar/Clock apps change their real launcher icon, so this is how other apps get a live date icon. It uses no battery — Android's own clock text updates it.
+
 ## How it works
 
 Like Chroma Doze, it never loops a recording:
@@ -83,6 +89,7 @@ Code map:
 | `clock/ClockStore.kt` | Saves them, carrying running ones across a reboot |
 | `clock/ClockControl.kt`, `ClockReceiver.kt`, `ClockNotifications.kt` | Scheduling the timer, notification buttons |
 | `ui/TimerScreen.kt`, `ui/StopwatchScreen.kt` | Timer and stopwatch screens |
+| `widget/DateWidget.kt`, `res/layout/widget_date.xml` | The home-screen date icon |
 
 Note: the app uses the `USE_EXACT_ALARM` permission, which is fine for personal use and for alarm-clock apps; Google Play only allows it for apps whose main job is an alarm or calendar.
 

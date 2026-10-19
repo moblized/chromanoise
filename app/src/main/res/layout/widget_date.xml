@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Home-screen "date icon": looks like an app icon, shows today's month / day / year.
+  TextClock keeps the date current by itself (it flips at midnight and follows time-zone
+  changes), so the app never needs to wake up to update it.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/date_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:contentDescription="@string/date_widget_description">
+
+    <ImageView
+        android:id="@+id/date_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/widget_date_bg" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="2dp">
+
+        <TextClock
+            android:id="@+id/date_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:format12Hour="MMM"
+            android:format24Hour="MMM"
+            android:fontFamily="sans-serif-medium"
+            android:includeFontPadding="false"
+            android:letterSpacing="0.08"
+            android:maxLines="1"
+            android:textAllCaps="true"
+            android:textColor="#FFB9ADFF"
+            android:textSize="11sp" />
+
+        <TextClock
+            android:id="@+id/date_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:format12Hour="d"
+            android:format24Hour="d"
+            android:fontFamily="sans-serif-medium"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:textColor="#FFE8E7F3"
+            android:textSize="27sp" />
+
+        <TextClock
+            android:id="@+id/date_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:format12Hour="yyyy"
+            android:format24Hour="yyyy"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:textColor="#FF9E9DB6"
+            android:textSize="10sp" />
+    </LinearLayout>
+</FrameLayout>

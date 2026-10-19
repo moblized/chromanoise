@@ -79,6 +79,19 @@
             android:directBootAware="true"
             android:exported="false" />
 
+        <!-- Home-screen date icon (one-cell widget showing today's month, day and year) -->
+        <receiver
+            android:name=".widget.DateWidget"
+            android:exported="false"
+            android:label="@string/date_widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/date_widget_info" />
+        </receiver>
+
         <receiver
             android:name=".alarm.SystemEventsReceiver"
             android:directBootAware="true"

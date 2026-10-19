@@ -1,5 +1,6 @@
 package app.chromanoise.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -39,11 +40,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.chromanoise.data.AccentPalette
 import app.chromanoise.data.AppearanceStore
 import app.chromanoise.data.ThemeMode
+import app.chromanoise.widget.DateWidget
 
 /** Theme picker. Changes apply live, so you see each option as you tap it. */
 @Composable
 fun AppearanceDialog(onDismiss: () -> Unit) {
-    val store = AppearanceStore.get(LocalContext.current)
+    val context = LocalContext.current
+    val store = AppearanceStore.get(context)
     val appearance by store.appearance.collectAsStateWithLifecycle()
 
     AlertDialog(
@@ -63,6 +66,7 @@ fun AppearanceDialog(onDismiss: () -> Unit) {
                     AccentPalette.entries.forEach { p ->
                         PaletteSwatch(p, selected = appearance.palette == p) {
                             store.update(appearance.copy(palette = p))
+                            DateWidget.refreshAll(context) // the home-screen date icon follows the colour
                         }
                     }
                 }
@@ -111,6 +115,26 @@ fun AppearanceDialog(onDismiss: () -> Unit) {
                     }
                     Spacer(Modifier.width(12.dp))
                     Switch(checked = appearance.pureBlack, onCheckedChange = null, enabled = blackAvailable)
+                }
+                HorizontalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Date icon", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            "A home-screen icon showing today's month, day and year. Tap it to open the app.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    TextButton(onClick = {
+                        if (!DateWidget.requestPin(context)) {
+                            Toast.makeText(
+                                context,
+                                "Long-press your home screen, tap Widgets, then find Chroma Noise",
+                                Toast.LENGTH_LONG,
+                            ).show()
+                        }
+                    }) { Text("Add") }
                 }
             }
         },

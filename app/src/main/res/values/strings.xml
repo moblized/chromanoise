@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Chroma Noise</string>
+    <string name="date_widget_label">Chroma Noise date icon</string>
+    <string name="date_widget_description">Today\'s month, day and year, like an app icon. Tap to open Chroma Noise.</string>
 </resources>
