@@ -5,6 +5,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/** How the home-screen date icon writes today's date ([pattern] is only used for the picker's labels). */
+enum class DateIconStyle(val pattern: String) {
+    WORDS("MMM d yyyy"), // OCT 19 2026
+    NUMBERS("MM/dd/yyyy"), // 10/19/2026
+}
+
 enum class ThemeMode(val label: String) {
     SYSTEM("Follow phone setting"),
     LIGHT("Light"),
@@ -15,6 +21,7 @@ data class Appearance(
     val mode: ThemeMode = ThemeMode.SYSTEM,
     val pureBlack: Boolean = false,
     val palette: AccentPalette = AccentPalette.VIOLET,
+    val dateIcon: DateIconStyle = DateIconStyle.WORDS,
 ) {
     /** Whether to use dark colours, given whether the phone itself is in dark mode. */
     fun isDark(phoneIsDark: Boolean): Boolean = when (mode) {
@@ -35,6 +42,7 @@ class AppearanceStore private constructor(context: Context) {
             mode = ThemeMode.entries.firstOrNull { it.name == prefs.getString(KEY_MODE, null) } ?: ThemeMode.SYSTEM,
             pureBlack = prefs.getBoolean(KEY_BLACK, false),
             palette = AccentPalette.fromName(prefs.getString(KEY_PALETTE, null)),
+            dateIcon = DateIconStyle.entries.firstOrNull { it.name == prefs.getString(KEY_DATE_ICON, null) } ?: DateIconStyle.WORDS,
         ),
     )
     val appearance: StateFlow<Appearance> = _appearance.asStateFlow()
@@ -45,6 +53,7 @@ class AppearanceStore private constructor(context: Context) {
             .putString(KEY_MODE, appearance.mode.name)
             .putBoolean(KEY_BLACK, appearance.pureBlack)
             .putString(KEY_PALETTE, appearance.palette.name)
+            .putString(KEY_DATE_ICON, appearance.dateIcon.name)
             .apply()
     }
 
@@ -52,6 +61,7 @@ class AppearanceStore private constructor(context: Context) {
         private const val KEY_MODE = "mode"
         private const val KEY_BLACK = "pure_black"
         private const val KEY_PALETTE = "palette"
+        private const val KEY_DATE_ICON = "date_icon"
 
         @Volatile private var instance: AppearanceStore? = null
 

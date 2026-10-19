@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package app.chromanoise.ui
 
 import android.widget.Toast
@@ -19,6 +21,8 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -39,8 +43,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.chromanoise.data.AccentPalette
 import app.chromanoise.data.AppearanceStore
+import app.chromanoise.data.DateIconStyle
 import app.chromanoise.data.ThemeMode
 import app.chromanoise.widget.DateWidget
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 /** Theme picker. Changes apply live, so you see each option as you tap it. */
 @Composable
@@ -121,7 +129,7 @@ fun AppearanceDialog(onDismiss: () -> Unit) {
                     Column(Modifier.weight(1f)) {
                         Text("Date icon", style = MaterialTheme.typography.bodyLarge)
                         Text(
-                            "A home-screen icon showing today's month, day and year. Tap it to open the app.",
+                            "A home-screen icon showing today's date. Tap it to open the app.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -135,6 +143,22 @@ fun AppearanceDialog(onDismiss: () -> Unit) {
                             ).show()
                         }
                     }) { Text("Add") }
+                }
+                Row(
+                    Modifier.padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    DateIconStyle.entries.forEach { style ->
+                        FilterChip(
+                            selected = appearance.dateIcon == style,
+                            onClick = {
+                                store.update(appearance.copy(dateIcon = style))
+                                DateWidget.refreshAll(context)
+                            },
+                            // Today's date in that style, e.g. "OCT 19 2026" / "10/19/2026".
+                            label = { Text(LocalDate.now().format(DateTimeFormatter.ofPattern(style.pattern, Locale.getDefault())).uppercase()) },
+                        )
+                    }
                 }
             }
         },

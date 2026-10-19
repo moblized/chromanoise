@@ -48,6 +48,7 @@ A white/colored noise app for Android in the spirit of Chroma Doze: you **draw t
 
 - A home-screen icon that shows **today's month, day and year** (e.g. OCT / 19 / 2026) and flips to the new date at midnight by itself. Tap it to open the app. It takes the colour of your chosen theme.
 - Add it from **Appearance → Date icon → Add** (or long-press the home screen → Widgets → Chroma Noise).
+- Two styles, picked under the Add button: words (**OCT 19 2026**) or numbers, MM/DD/YYYY (**10/19 2026**, with leading zeros — 01/05 for January 5). Changing it updates icons already on the home screen.
 - It's a one-cell widget made to look like an app icon: Android only lets the phone maker's own Calendar/Clock apps change their real launcher icon, so this is how other apps get a live date icon. It uses no battery — Android's own clock text updates it.
 
 ## How it works

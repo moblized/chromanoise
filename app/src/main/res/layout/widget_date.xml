@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Home-screen "date icon": looks like an app icon, shows today's month / day / year.
+  Home-screen "date icon": looks like an app icon, shows today's month / day / year,
+  either in words (OCT / 19 / 2026) or numbers (10/19 / 2026) — DateWidget shows one.
   TextClock keeps the date current by itself (it flips at midnight and follows time-zone
   changes), so the app never needs to wake up to update it.
 -->
@@ -19,6 +20,7 @@
         android:src="@drawable/widget_date_bg" />
 
     <LinearLayout
+        android:id="@+id/date_words"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -61,5 +63,47 @@
             android:maxLines="1"
             android:textColor="#FF9E9DB6"
             android:textSize="10sp" />
+    </LinearLayout>
+
+    <!-- Numbers: MM/dd big (leading zeros, e.g. 01/05), yyyy below. Shrinks to fit narrow cells. -->
+    <LinearLayout
+        android:id="@+id/date_numbers"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:visibility="gone">
+
+        <TextClock
+            android:id="@+id/date_month_day"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:autoSizeMaxTextSize="24sp"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:fontFamily="sans-serif-medium"
+            android:format12Hour="MM/dd"
+            android:format24Hour="MM/dd"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:textColor="#FFE8E7F3" />
+
+        <TextClock
+            android:id="@+id/date_year_numbers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:format12Hour="yyyy"
+            android:format24Hour="yyyy"
+            android:fontFamily="sans-serif-medium"
+            android:includeFontPadding="false"
+            android:letterSpacing="0.06"
+            android:maxLines="1"
+            android:textColor="#FFB9ADFF"
+            android:textSize="11sp" />
     </LinearLayout>
 </FrameLayout>

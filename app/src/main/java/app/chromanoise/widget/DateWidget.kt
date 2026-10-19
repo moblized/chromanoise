@@ -6,15 +6,18 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.view.View
 import android.widget.RemoteViews
 import app.chromanoise.MainActivity
 import app.chromanoise.R
 import app.chromanoise.data.AppearanceStore
+import app.chromanoise.data.DateIconStyle
 import app.chromanoise.data.Palettes
 
 /**
  * The home-screen date icon: a one-cell widget that looks like the app icon and shows
- * today's month, day and year (e.g. OCT / 19 / 2026). Tapping it opens the app.
+ * today's month, day and year — in words (OCT / 19 / 2026) or numbers (10/19 / 2026), as
+ * chosen in Appearance. Tapping it opens the app.
  *
  * Android only lets the phone maker's own calendar/clock apps change their real launcher
  * icon, so this is how any other app gets a live date icon. The date itself is drawn by
@@ -28,8 +31,9 @@ class DateWidget : AppWidgetProvider() {
 
     companion object {
         private fun views(context: Context): RemoteViews {
-            val palette = AppearanceStore.get(context).appearance.value.palette
-            val c = Palettes.dark(palette, pureBlack = false)
+            val appearance = AppearanceStore.get(context).appearance.value
+            val c = Palettes.dark(appearance.palette, pureBlack = false)
+            val numbers = appearance.dateIcon == DateIconStyle.NUMBERS
             val open = PendingIntent.getActivity(
                 context, 0,
                 Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
@@ -40,6 +44,10 @@ class DateWidget : AppWidgetProvider() {
                 setTextColor(R.id.date_month, c.primary)
                 setTextColor(R.id.date_day, c.onBackground)
                 setTextColor(R.id.date_year, c.onSurfaceVariant)
+                setTextColor(R.id.date_month_day, c.onBackground)
+                setTextColor(R.id.date_year_numbers, c.primary)
+                setViewVisibility(R.id.date_words, if (numbers) View.GONE else View.VISIBLE)
+                setViewVisibility(R.id.date_numbers, if (numbers) View.VISIBLE else View.GONE)
                 setOnClickPendingIntent(R.id.date_root, open)
             }
         }
