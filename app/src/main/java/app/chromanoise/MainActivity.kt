@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,6 +20,7 @@ import app.chromanoise.clock.TimerControl
 import app.chromanoise.ui.AlarmsViewModel
 import app.chromanoise.ui.AppRoot
 import app.chromanoise.ui.ChromaNoiseTheme
+import app.chromanoise.ui.LocalDarkTheme
 import app.chromanoise.ui.MainViewModel
 
 class MainActivity : ComponentActivity() {
@@ -27,6 +29,15 @@ class MainActivity : ComponentActivity() {
 
     /** Set when we're opened from an alarm notification, so the Alarms tab shows. */
     private var tabRequest by mutableStateOf<Int?>(null)
+
+    /** Whether the app is showing its dark theme, so the home-screen icon can match. */
+    private var darkTheme: Boolean? = null
+
+    override fun onStop() {
+        super.onStop()
+        // Switch to the dark (or light) app icon once the app is out of sight.
+        if (!isChangingConfigurations) darkTheme?.let { AppIcon.sync(this, it) }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +48,8 @@ class MainActivity : ComponentActivity() {
         StopwatchControl.sync(this)
         setContent {
             ChromaNoiseTheme {
+                val dark = LocalDarkTheme.current
+                SideEffect { darkTheme = dark }
                 val noiseVm: MainViewModel = viewModel()
                 val alarmsVm: AlarmsViewModel = viewModel()
                 AppRoot(
