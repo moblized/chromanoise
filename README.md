@@ -94,6 +94,20 @@ Code map:
 
 Note: the app uses the `USE_EXACT_ALARM` permission, which is fine for personal use and for alarm-clock apps; Google Play only allows it for apps whose main job is an alarm or calendar.
 
+## Start it from another app
+
+ChromaNoise exposes a no-UI entry point so another app on the phone (for example a
+bedside NFC-tag trigger) can start noise without opening the full UI. It loads the
+last-used spectrum, starts playback and finishes immediately.
+
+Launch the explicit component `app.chromanoise/.playback.PlayTriggerActivity`, with
+optional extras:
+
+| Extra | Type | Effect |
+|---|---|---|
+| `app.chromanoise.extra.PRESET` | String | Play this built-in or saved preset (e.g. `Pink`); omit for last used |
+| `app.chromanoise.extra.TIMER_MINUTES` | Int | Arm the sleep timer for N minutes; 0/omit for none |
+
 ## Build it
 
 **Android Studio** (on CachyOS: `paru -S android-studio`): *File → Open* this folder, let Gradle sync, press Run with your phone connected (USB debugging on).

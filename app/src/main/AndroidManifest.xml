@@ -63,6 +63,15 @@
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
+        <!-- No-UI entry point: lets another app (e.g. the bedside NFC-tag app) start noise. -->
+        <activity
+            android:name=".playback.PlayTriggerActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <!-- Alarm parts are direct-boot aware: they work after a reboot even before you unlock. -->
         <activity
             android:name=".alarm.AlarmActivity"
