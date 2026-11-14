@@ -25,6 +25,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
@@ -84,6 +85,7 @@ fun NoiseScreen(
     val timerChoice by vm.timerChoice.collectAsStateWithLifecycle()
 
     var showSave by rememberSaveable { mutableStateOf(false) }
+    var showTrigger by rememberSaveable { mutableStateOf(false) }
     var pendingDelete by remember { mutableStateOf<Preset?>(null) }
 
     Column(
@@ -92,7 +94,7 @@ fun NoiseScreen(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Header(presetName, playing, active, nextAlarm, onAlarmClick, onOpenAppearance)
+        Header(presetName, playing, active, nextAlarm, onAlarmClick, { showTrigger = true }, onOpenAppearance)
         SpectrumEditor(
             bands = bands,
             playing = active,
@@ -132,6 +134,8 @@ fun NoiseScreen(
 
     if (showSave) SaveDialog(onSave = { vm.savePreset(it); showSave = false }, onDismiss = { showSave = false })
 
+    if (showTrigger) TriggerDialog(onDismiss = { showTrigger = false })
+
     pendingDelete?.let { p ->
         AlertDialog(
             onDismissRequest = { pendingDelete = null },
@@ -151,6 +155,7 @@ private fun Header(
     active: Boolean,
     nextAlarm: String?,
     onAlarmClick: () -> Unit,
+    onOpenTrigger: () -> Unit,
     onOpenAppearance: () -> Unit,
 ) {
     Column(Modifier.padding(top = 8.dp)) {
@@ -181,6 +186,13 @@ private fun Header(
                         Text(nextAlarm, style = MaterialTheme.typography.labelLarge)
                     }
                 }
+            }
+            IconButton(onClick = onOpenTrigger) {
+                Icon(
+                    AppIcons.Tag,
+                    contentDescription = "Tag & schedule",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
             AppearanceButton(onOpenAppearance)
         }

@@ -72,6 +72,11 @@
             android:taskAffinity=""
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
+        <!-- Nightly auto-start of noise (set in-app). Reached only by our own exact alarm. -->
+        <receiver
+            android:name=".playback.NoiseScheduleReceiver"
+            android:exported="false" />
+
         <!-- Alarm parts are direct-boot aware: they work after a reboot even before you unlock. -->
         <activity
             android:name=".alarm.AlarmActivity"

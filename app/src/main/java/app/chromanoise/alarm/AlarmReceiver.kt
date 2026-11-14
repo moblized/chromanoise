@@ -7,6 +7,7 @@ import android.content.Intent
 import android.util.Log
 import app.chromanoise.clock.StopwatchControl
 import app.chromanoise.clock.TimerControl
+import app.chromanoise.playback.TriggerScheduler
 
 /** Our own alarm events: "time to ring" and "dismiss this snooze". Not reachable by other apps. */
 class AlarmReceiver : BroadcastReceiver() {
@@ -73,6 +74,7 @@ class SystemEventsReceiver : BroadcastReceiver() {
                 AlarmScheduler.sync(context)
                 TimerControl.sync(context)
                 StopwatchControl.sync(context)
+                TriggerScheduler.sync(context)
             }
         }
     }

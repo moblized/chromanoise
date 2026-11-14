@@ -155,6 +155,17 @@ object AppIcons {
         }
     }
 
+    val Tag: ImageVector = icon("Trigger") {
+        // A tag outline with a hole — stands in for the NFC-tag / schedule trigger.
+        path(stroke = SolidColor(Color.Black), strokeLineWidth = 2f, strokeLineCap = StrokeCap.Round) {
+            moveTo(11f, 3f); lineTo(20f, 3f); lineTo(20f, 12f); lineTo(11f, 21f)
+            lineTo(3f, 13f); lineTo(11f, 3f); close()
+        }
+        path(fill = SolidColor(Color.Black)) {
+            moveTo(16f, 7f); arcToRelative(1.6f, 1.6f, 0f, true, true, -0.01f, 0f); close()
+        }
+    }
+
     private inline fun icon(name: String, block: ImageVector.Builder.() -> Unit): ImageVector =
         ImageVector.Builder(name, 24.dp, 24.dp, 24f, 24f).apply(block).build()
 }

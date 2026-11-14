@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.chromanoise.clock.StopwatchControl
 import app.chromanoise.clock.TimerControl
+import app.chromanoise.playback.TriggerScheduler
 import app.chromanoise.ui.AlarmsViewModel
 import app.chromanoise.ui.AppRoot
 import app.chromanoise.ui.ChromaNoiseTheme
@@ -46,6 +47,7 @@ class MainActivity : ComponentActivity() {
         // Re-arm the timer and refresh its notifications, in case Android dropped them (e.g. a force stop).
         TimerControl.sync(this)
         StopwatchControl.sync(this)
+        TriggerScheduler.sync(this)
         setContent {
             ChromaNoiseTheme {
                 val dark = LocalDarkTheme.current

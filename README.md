@@ -94,19 +94,29 @@ Code map:
 
 Note: the app uses the `USE_EXACT_ALARM` permission, which is fine for personal use and for alarm-clock apps; Google Play only allows it for apps whose main job is an alarm or calendar.
 
-## Start it from another app
+## Tag & schedule
 
-ChromaNoise exposes a no-UI entry point so another app on the phone (for example a
-bedside NFC-tag trigger) can start noise without opening the full UI. It loads the
-last-used spectrum, starts playback and finishes immediately.
+The **tag/schedule button** in the Noise screen header sets what the trigger plays and
+when:
 
-Launch the explicit component `app.chromanoise/.playback.PlayTriggerActivity`, with
-optional extras:
+- **Play** — a preset (or "Last used").
+- **Stop after** — auto-off timer once it starts.
+- **Start every night** — ChromaNoise starts the noise itself at a set time (an exact
+  alarm, re-armed across reboots), no phone needed in hand.
+
+### Start it from another app
+
+ChromaNoise also exposes a no-UI entry point so another app (for example a bedside
+NFC-tag trigger) can start noise. It uses the saved **Tag & schedule** settings by
+default, starts playback and finishes immediately.
+
+Launch the explicit component `app.chromanoise/.playback.PlayTriggerActivity`. Optional
+extras override the saved settings for that one start:
 
 | Extra | Type | Effect |
 |---|---|---|
-| `app.chromanoise.extra.PRESET` | String | Play this built-in or saved preset (e.g. `Pink`); omit for last used |
-| `app.chromanoise.extra.TIMER_MINUTES` | Int | Arm the sleep timer for N minutes; 0/omit for none |
+| `app.chromanoise.extra.PRESET` | String | Play this built-in or saved preset (e.g. `Pink`) |
+| `app.chromanoise.extra.TIMER_MINUTES` | Int | Auto-off after N minutes (0 = none) |
 
 ## Build it
 
