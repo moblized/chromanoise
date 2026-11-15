@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark-mode launcher background: makes the single ic_launcher go dark in dark mode
+         automatically, with no runtime icon swapping. -->
+    <color name="ic_launcher_background">#FF000000</color>
+</resources>

@@ -31,7 +31,11 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
-        <!-- Two home-screen entries for the same screen: AppIcon turns on the dark one in dark mode. -->
+        <!-- Single launcher icon. It themes light/dark on its own via day/night resources,
+             so there's no runtime icon swapping (which left duplicate icons on some phones).
+             LauncherLight is the one launcher entry; LauncherDark is kept only so older
+             installs that had it enabled don't lose their icon — AppIcon.ensureSingle()
+             disables it on launch. -->
         <activity-alias
             android:name=".LauncherLight"
             android:enabled="true"
@@ -49,8 +53,8 @@
             android:name=".LauncherDark"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher_dark"
-            android:roundIcon="@mipmap/ic_launcher_dark"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
