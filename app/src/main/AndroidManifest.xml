@@ -18,6 +18,11 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Apps that may ring an alarm here (ExternalAlarm) -->
+    <queries>
+        <package android:name="app.tempwatch" />
+    </queries>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -103,6 +108,16 @@
             android:name=".alarm.AlarmReceiver"
             android:directBootAware="true"
             android:exported="false" />
+
+        <!-- Other apps of yours (TempWatch) ring an alarm here; see ExternalAlarm for the extras -->
+        <receiver
+            android:name=".alarm.ExternalAlarmReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="app.chromanoise.action.RING_EXTERNAL" />
+                <action android:name="app.chromanoise.action.STOP_EXTERNAL" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".clock.ClockTickService"

@@ -4,12 +4,13 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import app.chromanoise.clock.StopwatchControl
 import app.chromanoise.clock.TimerControl
 import app.chromanoise.playback.TriggerScheduler
 
-/** Our own alarm events: "time to ring" and "dismiss this snooze". Not reachable by other apps. */
+/** Our own alarm events: "time to ring" and "dismiss this snooze". Not reachable by other apps (they use [ExternalAlarmReceiver]). */
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getIntExtra(EXTRA_ID, -1)
@@ -31,6 +32,7 @@ class AlarmReceiver : BroadcastReceiver() {
                     AlarmRingService.releaseStartupWakeLock()
                 }
             }
+            ACTION_FIRE_EXTERNAL -> intent.extras?.let { ExternalAlarm.ring(context, it) }
             ACTION_CANCEL_SNOOZE -> {
                 store.update(id) { it.copy(snoozedUntil = null, nextAt = null) }
                 AlarmScheduler.sync(context)
@@ -41,11 +43,19 @@ class AlarmReceiver : BroadcastReceiver() {
     companion object {
         private const val ACTION_FIRE = "app.chromanoise.alarm.FIRE"
         private const val ACTION_CANCEL_SNOOZE = "app.chromanoise.alarm.CANCEL_SNOOZE"
+        private const val ACTION_FIRE_EXTERNAL = "app.chromanoise.alarm.FIRE_EXTERNAL"
         private const val EXTRA_ID = "alarm_id"
 
         fun fireIntent(context: Context, id: Int): PendingIntent = PendingIntent.getBroadcast(
             context, id,
             Intent(context, AlarmReceiver::class.java).setAction(ACTION_FIRE).putExtra(EXTRA_ID, id),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
+
+        /** The one-second alarm for a ring another app asked for ([ExternalAlarm]); null [request] to cancel it. */
+        fun fireExternalIntent(context: Context, request: Bundle?): PendingIntent = PendingIntent.getBroadcast(
+            context, ExternalAlarm.RING_ID,
+            Intent(context, AlarmReceiver::class.java).setAction(ACTION_FIRE_EXTERNAL).apply { request?.let { putExtras(it) } },
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
 

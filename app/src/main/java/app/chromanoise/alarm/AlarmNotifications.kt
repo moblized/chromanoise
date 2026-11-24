@@ -45,7 +45,8 @@ object AlarmNotifications {
         context: Context,
         title: String,
         text: String,
-        snoozeLabel: String,
+        /** Null for an alarm that can't be snoozed (one another app rang): only Stop. */
+        snoozeLabel: String?,
         overtimeSince: Long? = null,
     ): Notification {
         ensureChannels(context)
@@ -66,15 +67,21 @@ object AlarmNotifications {
             .setContentIntent(screen)
             .setFullScreenIntent(screen, true)
 
-        val snooze = action(
-            context,
-            if (overtimeSince != null) R.drawable.ic_notif_add else R.drawable.ic_notif_snooze,
-            snoozeLabel,
-            AlarmRingService.actionIntent(context, AlarmRingService.ACTION_SNOOZE),
-        )
+        val snooze = snoozeLabel?.let {
+            action(
+                context,
+                if (overtimeSince != null) R.drawable.ic_notif_add else R.drawable.ic_notif_snooze,
+                it,
+                AlarmRingService.actionIntent(context, AlarmRingService.ACTION_SNOOZE),
+            )
+        }
         val stop = action(context, R.drawable.ic_notif_stop, "Stop", AlarmRingService.actionIntent(context, AlarmRingService.ACTION_DISMISS))
         // A finished timer leads with Stop (Samsung shows the first button in its pop-down card), like Google Clock.
-        if (overtimeSince != null) b.addAction(stop).addAction(snooze) else b.addAction(snooze).addAction(stop)
+        when {
+            snooze == null -> b.addAction(stop)
+            overtimeSince != null -> b.addAction(stop).addAction(snooze)
+            else -> b.addAction(snooze).addAction(stop)
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             b.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
         }
