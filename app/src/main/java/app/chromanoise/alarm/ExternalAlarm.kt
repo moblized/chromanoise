@@ -17,6 +17,8 @@ import android.util.Log
  * Ring: send [ACTION_RING] to [ExternalAlarmReceiver] with
  *  - [EXTRA_TITLE]       big line on the alarm screen, e.g. "Brisket is ready"
  *  - [EXTRA_DETAIL]      line under the clock, e.g. "203°F · target 203°F"
+ *  - [EXTRA_SOUND]       optional: a phone sound URI, "silent" for vibrate only, or absent for the
+ *                        built-in soft chimes. A sound that can't be played falls back to the chimes.
  *  - [EXTRA_ON_STOP]     a PendingIntent of yours, required. Sent when someone presses Stop here
  *                        (or flips the phone), so your app can stop too. Its creator is how we
  *                        know who is asking; only apps in [CALLERS] are listened to.
@@ -29,6 +31,7 @@ object ExternalAlarm {
     const val ACTION_STOP = "app.chromanoise.action.STOP_EXTERNAL"
     const val EXTRA_TITLE = "app.chromanoise.extra.TITLE"
     const val EXTRA_DETAIL = "app.chromanoise.extra.DETAIL"
+    const val EXTRA_SOUND = "app.chromanoise.extra.SOUND"
     const val EXTRA_ON_STOP = "app.chromanoise.extra.ON_STOP"
     const val EXTRA_ON_RINGING = "app.chromanoise.extra.ON_RINGING"
     internal const val EXTRA_CALLER = "app.chromanoise.extra.CALLER"
@@ -97,6 +100,7 @@ class ExternalAlarmReceiver : BroadcastReceiver() {
                 Bundle().apply {
                     putString(ExternalAlarm.EXTRA_TITLE, intent.getStringExtra(ExternalAlarm.EXTRA_TITLE)?.take(80).orEmpty())
                     putString(ExternalAlarm.EXTRA_DETAIL, intent.getStringExtra(ExternalAlarm.EXTRA_DETAIL)?.take(120).orEmpty())
+                    putString(ExternalAlarm.EXTRA_SOUND, intent.getStringExtra(ExternalAlarm.EXTRA_SOUND)?.take(500)?.ifBlank { null })
                     putString(ExternalAlarm.EXTRA_CALLER, caller)
                     putParcelable(ExternalAlarm.EXTRA_ON_STOP, onStop)
                     putParcelable(ExternalAlarm.EXTRA_ON_RINGING, intent.pendingIntentExtra(ExternalAlarm.EXTRA_ON_RINGING))

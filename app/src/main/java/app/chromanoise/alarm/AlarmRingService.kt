@@ -120,8 +120,10 @@ class AlarmRingService : Service() {
         if (!enterForeground(ringing, if (detail.isBlank()) from else "$detail · $from")) return
         externalCaller = caller
         externalOnStop = request.pendingIntent(ExternalAlarm.EXTRA_ON_STOP)
-        // Full volume straight away, like a timer; any noise keeps playing.
-        startSound(Alarm(id = ExternalAlarm.RING_ID, hour = 0, minute = 0, gentleWake = false, vibrate = true))
+        // Full volume straight away, like a timer; any noise keeps playing. The app picks the
+        // sound (null = soft chimes); one we can't play falls back to the chimes.
+        val sound = request.getString(ExternalAlarm.EXTRA_SOUND)
+        startSound(Alarm(id = ExternalAlarm.RING_ID, hour = 0, minute = 0, soundUri = sound, gentleWake = false, vibrate = true))
         // Tell the app it's ringing here, so it doesn't ring as well.
         request.pendingIntent(ExternalAlarm.EXTRA_ON_RINGING)?.let { send(it) }
     }
