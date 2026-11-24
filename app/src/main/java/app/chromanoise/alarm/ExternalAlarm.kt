@@ -17,7 +17,8 @@ import android.util.Log
  * Ring: send [ACTION_RING] to [ExternalAlarmReceiver] with
  *  - [EXTRA_TITLE]       big line on the alarm screen, e.g. "Brisket is ready"
  *  - [EXTRA_DETAIL]      line under the clock, e.g. "203°F · target 203°F"
- *  - [EXTRA_SOUND]       optional: a phone sound URI, "silent" for vibrate only, or absent for the
+ *  - [EXTRA_SOUND]       optional: a phone sound URI, "silent" for vibrate only, [SOUND_MATCH_ALARM]
+ *                        for the sound and vibration of your next alarm here, or absent for the
  *                        built-in soft chimes. A sound that can't be played falls back to the chimes.
  *  - [EXTRA_ON_STOP]     a PendingIntent of yours, required. Sent when someone presses Stop here
  *                        (or flips the phone), so your app can stop too. Its creator is how we
@@ -32,6 +33,7 @@ object ExternalAlarm {
     const val EXTRA_TITLE = "app.chromanoise.extra.TITLE"
     const val EXTRA_DETAIL = "app.chromanoise.extra.DETAIL"
     const val EXTRA_SOUND = "app.chromanoise.extra.SOUND"
+    const val SOUND_MATCH_ALARM = "match_alarm"
     const val EXTRA_ON_STOP = "app.chromanoise.extra.ON_STOP"
     const val EXTRA_ON_RINGING = "app.chromanoise.extra.ON_RINGING"
     internal const val EXTRA_CALLER = "app.chromanoise.extra.CALLER"

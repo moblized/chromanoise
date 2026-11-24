@@ -175,4 +175,20 @@ class AlarmTest {
         val tail = loop.copyOfRange(loop.size - 4_410, loop.size).maxOf { abs(it.toInt()) }
         assertTrue("tail $tail", tail < peak * 0.25)
     }
+
+    @Test fun matchesTheNextAlarmThatIsOn() {
+        val now = at(12, 6, 0).toInstant().toEpochMilli()
+        val off = Alarm(1, 6, 30, enabled = false, soundUri = "off")
+        val later = Alarm(2, 9, 0, soundUri = "later")
+        val next = Alarm(3, 7, 0, soundUri = "next")
+        assertEquals("next", Alarm.toMatch(listOf(off, later, next), now, ny)?.soundUri)
+    }
+
+    @Test fun matchesTheFirstAlarmWhenNoneIsOn() {
+        val now = at(12, 6, 0).toInstant().toEpochMilli()
+        val a = Alarm(1, 6, 30, enabled = false, soundUri = "a")
+        val b = Alarm(2, 9, 0, enabled = false, soundUri = "b")
+        assertEquals("a", Alarm.toMatch(listOf(a, b), now, ny)?.soundUri)
+        assertNull(Alarm.toMatch(emptyList(), now, ny))
+    }
 }

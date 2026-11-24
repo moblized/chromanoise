@@ -74,6 +74,14 @@ data class Alarm(
     fun afterFiring(): Alarm = copy(enabled = enabled && repeats, snoozedUntil = null, nextAt = null)
 
     companion object {
+        /**
+         * The alarm whose sound and vibration another app's ring copies ("same as my Chroma
+         * Noise alarm"): the next one to go off, or if none is on, the first in the list.
+         */
+        fun toMatch(alarms: List<Alarm>, nowMillis: Long, zone: ZoneId): Alarm? =
+            alarms.mapNotNull { a -> a.nextTrigger(nowMillis, zone)?.let { a to it } }.minByOrNull { it.second }?.first
+                ?: alarms.firstOrNull()
+
         const val DEFAULT_SOUND_NAME = "Soft chimes"
         const val SILENT_SOUND = "silent"
         const val SILENT_SOUND_NAME = "No sound (vibrate only)"

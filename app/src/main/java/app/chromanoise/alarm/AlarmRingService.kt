@@ -18,6 +18,7 @@ import app.chromanoise.clock.TimerControl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.time.ZoneId
 
 /** What's ringing right now, for the alarm screen. */
 data class Ringing(
@@ -121,9 +122,18 @@ class AlarmRingService : Service() {
         externalCaller = caller
         externalOnStop = request.pendingIntent(ExternalAlarm.EXTRA_ON_STOP)
         // Full volume straight away, like a timer; any noise keeps playing. The app picks the
-        // sound (null = soft chimes); one we can't play falls back to the chimes.
+        // sound (null = soft chimes), or asks for the same sound and vibration as your next
+        // alarm here. One we can't play falls back to the chimes.
         val sound = request.getString(ExternalAlarm.EXTRA_SOUND)
-        startSound(Alarm(id = ExternalAlarm.RING_ID, hour = 0, minute = 0, soundUri = sound, gentleWake = false, vibrate = true))
+        val ring = Alarm(id = ExternalAlarm.RING_ID, hour = 0, minute = 0, gentleWake = false, vibrate = true)
+        startSound(
+            if (sound == ExternalAlarm.SOUND_MATCH_ALARM) {
+                val mine = Alarm.toMatch(AlarmStore.get(this).alarms.value, System.currentTimeMillis(), ZoneId.systemDefault())
+                if (mine == null) ring else ring.copy(soundUri = mine.soundUri, vibrate = mine.vibrate, vibration = mine.vibration)
+            } else {
+                ring.copy(soundUri = sound)
+            },
+        )
         // Tell the app it's ringing here, so it doesn't ring as well.
         request.pendingIntent(ExternalAlarm.EXTRA_ON_RINGING)?.let { send(it) }
     }
