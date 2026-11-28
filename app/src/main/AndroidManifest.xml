@@ -74,7 +74,7 @@
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
-        <!-- No-UI entry point: lets another app (e.g. the bedside NFC-tag app) start noise. -->
+        <!-- No-UI entry point: lets another app (an automation app, say) start noise. -->
         <activity
             android:name=".playback.PlayTriggerActivity"
             android:exported="true"

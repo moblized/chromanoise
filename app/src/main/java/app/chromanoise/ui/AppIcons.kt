@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
@@ -155,14 +156,13 @@ object AppIcons {
         }
     }
 
-    val Tag: ImageVector = icon("Trigger") {
-        // A tag outline with a hole — stands in for the NFC-tag / schedule trigger.
-        path(stroke = SolidColor(Color.Black), strokeLineWidth = 2f, strokeLineCap = StrokeCap.Round) {
-            moveTo(11f, 3f); lineTo(20f, 3f); lineTo(20f, 12f); lineTo(11f, 21f)
-            lineTo(3f, 13f); lineTo(11f, 3f); close()
-        }
-        path(fill = SolidColor(Color.Black)) {
-            moveTo(16f, 7f); arcToRelative(1.6f, 1.6f, 0f, true, true, -0.01f, 0f); close()
+    val Moon: ImageVector = icon("Auto-start") {
+        // A crescent moon: the bedtime auto-starts (every night, on the bedside charger).
+        path(stroke = SolidColor(Color.Black), strokeLineWidth = 2f, strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round) {
+            moveTo(21f, 12.79f)
+            arcTo(9f, 9f, 0f, true, true, 11.21f, 3f)
+            arcTo(7f, 7f, 0f, false, false, 21f, 12.79f)
+            close()
         }
     }
 

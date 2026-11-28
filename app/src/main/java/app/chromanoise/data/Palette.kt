@@ -184,3 +184,30 @@ object Palettes {
         return c
     }
 }
+
+/**
+ * Colours for the home-screen date icon. Light mode is a pale tile with dark text, like the
+ * app's light theme; dark mode is black, like the app icon in dark mode, so the two match
+ * side by side on the home screen.
+ */
+data class DateIconColors(
+    val background: Int,
+    /** Month (words) and year (numbers). */
+    val accent: Int,
+    /** The big day / MM/DD. */
+    val text: Int,
+    /** Year (words). */
+    val muted: Int,
+) {
+    companion object {
+        fun light(p: AccentPalette): DateIconColors {
+            val c = Palettes.light(p)
+            return DateIconColors(c.surfaceContainerHigh, c.primary, c.onBackground, c.onSurfaceVariant)
+        }
+
+        fun dark(p: AccentPalette): DateIconColors {
+            val c = Palettes.dark(p, pureBlack = true)
+            return DateIconColors(Palettes.BLACK, c.primary, c.onBackground, c.onSurfaceVariant)
+        }
+    }
+}

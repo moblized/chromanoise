@@ -189,7 +189,7 @@ private fun Header(
             }
             IconButton(onClick = onOpenTrigger) {
                 Icon(
-                    AppIcons.Tag,
+                    AppIcons.Moon,
                     contentDescription = "Auto-start",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

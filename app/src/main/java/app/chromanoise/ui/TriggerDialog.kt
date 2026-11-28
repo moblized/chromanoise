@@ -52,7 +52,7 @@ private val AUTO_OFF_OPTIONS = listOf(0, 15, 30, 45, 60, 90)
 private enum class NightEnd { FROM, TO }
 
 /**
- * Auto-start settings: what the NFC tag, the nightly start and the bedside charger play,
+ * Auto-start settings: what the nightly start and the bedside wireless charger play,
  * when the noise stops, and when it starts on its own. Saving writes [TriggerStore], re-arms
  * the nightly schedule and turns the charger watcher on or off.
  */
@@ -93,7 +93,7 @@ fun TriggerDialog(onDismiss: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 Text(
-                    "For your NFC tag, the nightly start and the bedside wireless charger.",
+                    "What plays when the noise starts on its own: every night at a set time, or when you put the phone on your bedside wireless charger.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

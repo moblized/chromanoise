@@ -46,7 +46,7 @@ A white/colored noise app for Android in the spirit of Chroma Doze: you **draw t
 
 ### Date icon
 
-- A home-screen icon that shows **today's month, day and year** (e.g. OCT / 19 / 2026) and flips to the new date at midnight by itself. Tap it to open the app. It takes the colour of your chosen theme.
+- A home-screen icon that shows **today's month, day and year** (e.g. OCT / 19 / 2026) and flips to the new date at midnight by itself. Tap it to open the app. It takes the colour of your chosen theme and follows your light / dark setting: a pale tile in light mode, black in dark mode (like the app icon). On "Follow phone setting" it switches by itself when the phone goes into or out of dark mode.
 - Add it from **Appearance → Date icon → Add** (or long-press the home screen → Widgets → Chroma Noise).
 - Two styles, picked under the Add button: words (**OCT 19 2026**) or numbers, MM/DD/YYYY (**10/19 2026**, with leading zeros — 01/05 for January 5). Changing it updates icons already on the home screen.
 - It's a one-cell widget made to look like an app icon: Android only lets the phone maker's own Calendar/Clock apps change their real launcher icon, so this is how other apps get a live date icon. It uses no battery — Android's own clock text updates it.
@@ -96,8 +96,8 @@ Note: the app uses the `USE_EXACT_ALARM` permission, which is fine for personal 
 
 ## Auto-start
 
-The **tag button** in the Noise screen header opens **Auto-start**: what the NFC tag, the
-nightly start and the bedside wireless charger play, and when:
+The **moon button** in the Noise screen header opens **Auto-start**: what the nightly start
+and the bedside wireless charger play, and when:
 
 - **Play** — a preset (or "Last used").
 - **Stop after** — auto-off timer once it starts.
@@ -116,8 +116,8 @@ nightly start and the bedside wireless charger play, and when:
 
 ### Start it from another app
 
-ChromaNoise also exposes a no-UI entry point so another app (for example a bedside
-NFC-tag trigger) can start noise. It uses the saved **Auto-start** settings by
+ChromaNoise also exposes a no-UI entry point so another app (an automation app, say) can
+start noise. Nothing in ChromaNoise needs it. It uses the saved **Auto-start** settings by
 default, starts playback and finishes immediately.
 
 Launch the explicit component `app.chromanoise/.playback.PlayTriggerActivity`. Optional

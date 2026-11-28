@@ -8,8 +8,9 @@ import app.chromanoise.data.Prefs
 import app.chromanoise.data.TriggerStore
 
 /**
- * Starts noise the way the saved trigger settings say to — the shared path for both the
- * NFC-tag tap ([PlayTriggerActivity]) and the nightly schedule ([NoiseScheduleReceiver]).
+ * Starts noise the way the saved Auto-start settings say to — the shared path for the
+ * nightly schedule ([NoiseScheduleReceiver]), the bedside charger ([ChargerWatchService])
+ * and other apps ([PlayTriggerActivity]).
  *
  * Resolves the spectrum before starting the service, so it works even from a cold process
  * where [NoiseEngine] hasn't been primed yet. Overrides let a caller force a preset/timer;

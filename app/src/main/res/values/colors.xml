@@ -3,4 +3,9 @@
     <!-- Shown for a split second while the app starts; follows the phone's light/dark setting. -->
     <color name="window_bg">#FFF7F6FC</color>
     <color name="ic_launcher_background">#FF13172A</color>
+    <!-- Date icon preview (Violet); the app recolours placed icons to your theme. -->
+    <color name="date_icon_bg">#FFE7E9F3</color>
+    <color name="date_icon_accent">#FF604AC4</color>
+    <color name="date_icon_text">#FF1A1C26</color>
+    <color name="date_icon_muted">#FF5B5E71</color>
 </resources>

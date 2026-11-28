@@ -3,7 +3,8 @@
   Home-screen "date icon": looks like an app icon, shows today's month / day / year,
   either in words (OCT / 19 / 2026) or numbers (10/19 / 2026) — DateWidget shows one.
   TextClock keeps the date current by itself (it flips at midnight and follows time-zone
-  changes), so the app never needs to wake up to update it.
+  changes), so the app never needs to wake up to update it. The colours here (violet, light
+  or dark by the phone's mode) are for the widget picker's preview; DateWidget recolours it.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/date_root"
@@ -38,7 +39,7 @@
             android:letterSpacing="0.08"
             android:maxLines="1"
             android:textAllCaps="true"
-            android:textColor="#FFB9ADFF"
+            android:textColor="@color/date_icon_accent"
             android:textSize="11sp" />
 
         <TextClock
@@ -50,7 +51,7 @@
             android:fontFamily="sans-serif-medium"
             android:includeFontPadding="false"
             android:maxLines="1"
-            android:textColor="#FFE8E7F3"
+            android:textColor="@color/date_icon_text"
             android:textSize="27sp" />
 
         <TextClock
@@ -61,7 +62,7 @@
             android:format24Hour="yyyy"
             android:includeFontPadding="false"
             android:maxLines="1"
-            android:textColor="#FF9E9DB6"
+            android:textColor="@color/date_icon_muted"
             android:textSize="10sp" />
     </LinearLayout>
 
@@ -90,7 +91,7 @@
             android:gravity="center"
             android:includeFontPadding="false"
             android:maxLines="1"
-            android:textColor="#FFE8E7F3" />
+            android:textColor="@color/date_icon_text" />
 
         <TextClock
             android:id="@+id/date_year_numbers"
@@ -103,7 +104,7 @@
             android:includeFontPadding="false"
             android:letterSpacing="0.06"
             android:maxLines="1"
-            android:textColor="#FFB9ADFF"
+            android:textColor="@color/date_icon_accent"
             android:textSize="11sp" />
     </LinearLayout>
 </FrameLayout>

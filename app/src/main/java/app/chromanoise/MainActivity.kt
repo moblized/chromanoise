@@ -22,6 +22,7 @@ import app.chromanoise.ui.AlarmsViewModel
 import app.chromanoise.ui.AppRoot
 import app.chromanoise.ui.ChromaNoiseTheme
 import app.chromanoise.ui.MainViewModel
+import app.chromanoise.widget.DateWidget
 
 class MainActivity : ComponentActivity() {
     private val requestNotifications =
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
         StopwatchControl.sync(this)
         TriggerScheduler.sync(this)
         ChargerWatch.sync(this) // bedside mode: make sure the charger watcher is running if it's on
+        DateWidget.refreshAll(this) // date icon: current colours and light/dark
         // Keep a single launcher icon; the icon themes itself via day/night resources.
         AppIcon.ensureSingle(this)
         setContent {

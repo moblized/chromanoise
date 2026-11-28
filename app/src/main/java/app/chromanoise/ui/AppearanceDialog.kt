@@ -88,7 +88,10 @@ fun AppearanceDialog(onDismiss: () -> Unit) {
                                 .selectable(
                                     selected = appearance.mode == mode,
                                     role = Role.RadioButton,
-                                    onClick = { store.update(appearance.copy(mode = mode)) },
+                                    onClick = {
+                                        store.update(appearance.copy(mode = mode))
+                                        DateWidget.refreshAll(context) // light / dark date icon
+                                    },
                                 )
                                 .padding(vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,

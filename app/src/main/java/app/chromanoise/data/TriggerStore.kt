@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * What the auto-starts play, and when: the NFC-tag tap, the nightly start, and putting the
- * phone on the wireless charger.
+ * What the auto-starts play, and when: the nightly start and putting the phone on the
+ * wireless charger (and any other app that starts noise through [app.chromanoise.playback.PlayTriggerActivity]).
  *
  * @param preset         a built-in or saved preset name; empty means "whatever played last"
  * @param autoOffMinutes stop the noise after this many minutes once it starts; 0 means never

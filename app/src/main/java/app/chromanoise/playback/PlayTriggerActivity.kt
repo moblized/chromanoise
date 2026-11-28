@@ -4,8 +4,8 @@ import android.app.Activity
 import android.os.Bundle
 
 /**
- * No-UI entry point so another app on the phone (e.g. the bedside NFC-tag app) can start
- * noise without the user opening ChromaNoise.
+ * No-UI entry point so another app on the phone (an automation app, say) can start noise
+ * without the user opening ChromaNoise. Nothing in ChromaNoise needs it.
  *
  * By default it plays whatever the in-app trigger settings say (preset + auto-off timer).
  * A caller may override those with intent extras, but the normal flow is to set everything

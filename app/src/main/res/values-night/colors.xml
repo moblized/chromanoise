@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="window_bg">#FF0A0C16</color>
+    <!-- Date icon preview (Violet); the app recolours placed icons to your theme. -->
+    <color name="date_icon_bg">#FF000000</color>
+    <color name="date_icon_accent">#FFBCADFF</color>
+    <color name="date_icon_text">#FFE8E9F3</color>
+    <color name="date_icon_muted">#FF9CA0B4</color>
 </resources>
