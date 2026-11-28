@@ -5,9 +5,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.UserManager
 import android.util.Log
 import app.chromanoise.clock.StopwatchControl
 import app.chromanoise.clock.TimerControl
+import app.chromanoise.playback.ChargerWatch
 import app.chromanoise.playback.TriggerScheduler
 
 /** Our own alarm events: "time to ring" and "dismiss this snooze". Not reachable by other apps (they use [ExternalAlarmReceiver]). */
@@ -84,7 +86,12 @@ class SystemEventsReceiver : BroadcastReceiver() {
                 AlarmScheduler.sync(context)
                 TimerControl.sync(context)
                 StopwatchControl.sync(context)
-                TriggerScheduler.sync(context)
+                // The auto-start settings are in normal storage, readable only once the phone has
+                // been unlocked; BOOT_COMPLETED (sent after unlock) gets here again.
+                if (context.getSystemService(UserManager::class.java).isUserUnlocked) {
+                    TriggerScheduler.sync(context)
+                    ChargerWatch.sync(context)
+                }
             }
         }
     }

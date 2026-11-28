@@ -94,20 +94,30 @@ Code map:
 
 Note: the app uses the `USE_EXACT_ALARM` permission, which is fine for personal use and for alarm-clock apps; Google Play only allows it for apps whose main job is an alarm or calendar.
 
-## Tag & schedule
+## Auto-start
 
-The **tag/schedule button** in the Noise screen header sets what the trigger plays and
-when:
+The **tag button** in the Noise screen header opens **Auto-start**: what the NFC tag, the
+nightly start and the bedside wireless charger play, and when:
 
 - **Play** — a preset (or "Last used").
 - **Stop after** — auto-off timer once it starts.
 - **Start every night** — ChromaNoise starts the noise itself at a set time (an exact
   alarm, re-armed across reboots), no phone needed in hand.
+- **Start on the wireless charger** (bedside mode) — the noise starts when you put the
+  phone on your **wireless** charger; charging by cable never starts it.
+  - **Only at night** (default 8:00 PM – 8:00 AM, editable) so daytime charging stays quiet.
+  - **Stop when I pick it up** — fades out if the phone stays off the charger for 15 seconds.
+    A pad that drops out for a moment (phone nudged) doesn't stop it or restart it, and noise
+    you started or stopped yourself is left alone.
+  - Skipped during a call, while an alarm rings, or if noise is already playing.
+  - Android doesn't tell closed apps when a charger is connected, so a small "Bedside mode"
+    service waits for it (minimised notification, no wake lock, survives reboots). For it to
+    run all night on Samsung, tap **Allow** in the dialog (sets battery use to Unrestricted).
 
 ### Start it from another app
 
 ChromaNoise also exposes a no-UI entry point so another app (for example a bedside
-NFC-tag trigger) can start noise. It uses the saved **Tag & schedule** settings by
+NFC-tag trigger) can start noise. It uses the saved **Auto-start** settings by
 default, starts playback and finishes immediately.
 
 Launch the explicit component `app.chromanoise/.playback.PlayTriggerActivity`. Optional

@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.chromanoise.clock.StopwatchControl
 import app.chromanoise.clock.TimerControl
+import app.chromanoise.playback.ChargerWatch
 import app.chromanoise.playback.TriggerScheduler
 import app.chromanoise.ui.AlarmsViewModel
 import app.chromanoise.ui.AppRoot
@@ -37,6 +38,7 @@ class MainActivity : ComponentActivity() {
         TimerControl.sync(this)
         StopwatchControl.sync(this)
         TriggerScheduler.sync(this)
+        ChargerWatch.sync(this) // bedside mode: make sure the charger watcher is running if it's on
         // Keep a single launcher icon; the icon themes itself via day/night resources.
         AppIcon.ensureSingle(this)
         setContent {

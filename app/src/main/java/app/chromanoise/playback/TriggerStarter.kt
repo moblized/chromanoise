@@ -1,6 +1,7 @@
 package app.chromanoise.playback
 
 import android.content.Context
+import android.util.Log
 import app.chromanoise.audio.NoiseEngine
 import app.chromanoise.audio.Presets
 import app.chromanoise.data.Prefs
@@ -15,7 +16,17 @@ import app.chromanoise.data.TriggerStore
  * otherwise the saved [TriggerStore] settings decide.
  */
 object TriggerStarter {
-    fun start(context: Context, presetOverride: String? = null, minutesOverride: Int? = null) {
+    /**
+     * @param playInProcessIfBlocked for callers that are themselves a running foreground service
+     *   (the charger watcher): if Android won't let us start the playback service from the
+     *   background, play directly in this process instead — the caller's service keeps it alive.
+     */
+    fun start(
+        context: Context,
+        presetOverride: String? = null,
+        minutesOverride: Int? = null,
+        playInProcessIfBlocked: Boolean = false,
+    ) {
         val app = context.applicationContext
         val prefs = Prefs(app)
         val saved = TriggerStore.get(app).settings.value
@@ -32,7 +43,13 @@ object TriggerStarter {
         NoiseEngine.setVolume(prefs.volume)
         NoiseEngine.setLabel(label)
 
-        NoisePlaybackService.play(app)
+        try {
+            NoisePlaybackService.play(app)
+        } catch (e: Exception) {
+            if (!playInProcessIfBlocked) throw e
+            Log.w("TriggerStarter", "Playback service blocked; playing in-process", e)
+            NoiseEngine.play()
+        }
 
         val minutes = minutesOverride ?: saved.autoOffMinutes
         NoiseEngine.setTimer(if (minutes > 0) minutes else null)
